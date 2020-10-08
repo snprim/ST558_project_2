@@ -1,0 +1,158 @@
+---
+output: 
+  github_document: 
+    toc: true
+params: 
+  weekday: Monday
+editor_options: 
+  chunk_output_type: inline
+---
+
+---
+title: `r params$weekday`  
+author: "Shih-Ni Prim"  
+date: "2020-10-07"  
+---
+
+```{r setup, include=FALSE, message = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(caret)
+```
+
+```{r, echo = FALSE, eval = FALSE}
+# dayz <- c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+# paramz <- lapply(dayz, FUN = function(x){list(weekday = x)})
+# output_file <- paste0("Report-", dayz, ".md")
+# reports <- tibble(output_file, paramz)
+# 
+# library(rmarkdown)
+# 
+# apply(reports, MARGIN = 1,
+#       FUN = function(x){
+#           render(input = "analysis.Rmd",
+#                  output_format = "github_document",
+#                  output_file = x[[1]],
+#                  params = x[[2]])
+#           })
+
+rmarkdown::render(input = "analysis.Rmd", output_format = "github_document", output_file = "Report-Sunday.md", params = list(weekday = "Sunday"))
+rmarkdown::render(input = "analysis.Rmd", output_format = "github_document", output_file = "Report-Monday.md", params = list(weekday = "Monday"))
+rmarkdown::render(input = "analysis.Rmd", output_format = "github_document", output_file = "Report-Tuesday.md", params = list(weekday = "Tuesday"))
+rmarkdown::render(input = "analysis.Rmd", output_format = "github_document", output_file = "Report-Wednesday.md", params = list(weekday = "Wednesday"))
+rmarkdown::render(input = "analysis.Rmd", output_format = "github_document", output_file = "Report-Thursday.md", params = list(weekday = "Thursday"))
+rmarkdown::render(input = "analysis.Rmd", output_format = "github_document", output_file = "Report-Friday.md", params = list(weekday = "Friday"))
+rmarkdown::render(input = "analysis.Rmd", output_format = "github_document", output_file = "Report-Saturday.md", params = list(weekday = "Saturday"))
+```
+
+This is `r params$weekday`'s analysis.  
+
+## Introduction  
+
+This about bike share shows the information about each day--hours, temperature, humidity, weekday, holiday/workday or not, etc.  
+
+Since the current analysis is on `r params$weekday`, we first find the corresponding value for it.  
+
+```{r}
+set.seed(7777)
+i <- 0:6
+dayz <- c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
+df <- as.data.frame(cbind(i, dayz))
+weekdayNum <- df$i[df$dayz == params$weekday]
+print(weekdayNum)
+```
+
+
+## Data  
+
+Now we read in the data.  
+
+```{r}
+bikes <- read_csv("../Bike-Sharing-Dataset/hour.csv")
+# head(bikes)
+analysis <- bikes %>% filter(weekday == weekdayNum) %>% select(-casual, -registered) %>% select(dteday, weekday, everything()) 
+# head(analysis)
+```
+
+## Splitting up to training and test sets  
+
+```{r}
+train <- sample(1:nrow(analysis), size = nrow(analysis)*0.7)
+test <- setdiff(1:nrow(analysis), train)
+
+bikeTrain <- analysis[train,]
+bikeTest <- analysis[test,]
+```
+
+```{r}
+ggplot(bikeTrain, mapping = aes(x = cnt)) + geom_histogram()
+ggplot(bikeTrain, aes(x = hr, y = cnt)) + geom_point() + geom_jitter()
+ggplot(bikeTrain, aes(x = yr, y = cnt)) + geom_boxplot(aes(group = yr))
+cor(bikeTrain$mnth, bikeTrain$season)
+ggplot(bikeTrain, aes(x = weathersit, y = windspeed)) + geom_jitter()
+cor(bikeTrain$holiday, bikeTrain$workingday)
+cor(bikeTrain$temp, bikeTrain$atemp)
+var(bikeTrain$holiday)
+var(bikeTrain$workingday)
+```
+
+`mnth` and `season` as well as `workingday` and `holiday` are highly correlated. Also, `instant` and `dteday` are for record-keeping. The variance of `workingday` and `holiday` is 0 or too small. Thus, we decide to keep these as the predictors: `season`, `yr`, `hr`, `weathersit`, `atemp`, `hum`, and `windspeed`.  
+
+```{r}
+bikeTrain <- select(bikeTrain, season, yr, hr, weathersit, atemp, hum, windspeed, cnt)
+bikeTest <- select(bikeTest, season, yr, hr, weathersit, atemp, hum, windspeed, cnt)
+```
+
+
+## Fitting models  
+
+
+### Regression tree  
+
+```{r}
+modelLookup("rpart")
+
+bikeTree <- train(cnt ~ ., data = bikeTrain, method = "rpart", trControl = trainControl(method = "cv", number = 10), tuneLength = 10)
+
+predTree <- predict(bikeTree, newdata = bikeTest)
+treeRMSE <- sqrt(mean((predTree - bikeTest$cnt)^2))
+postResample(predTree, bikeTest$cnt)
+```
+
+### Boosted Tree  
+
+```{r}
+modelLookup("gbm")
+
+boostedBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "gbm", preProcess = c("center", "scale"), trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3), tuneLength = 5, verbose = FALSE)
+predBoostedBike <- predict(boostedBike, newdata = select(bikeTest, -cnt))
+boostedRMSE <- sqrt(mean((predBoostedBike - bikeTest$cnt)^2))
+postResample(predBoostedBike, bikeTest$cnt)
+```
+
+### Comparison  
+
+```{r}
+comparison <- data.frame(treeRMSE, boostedRMSE)
+colnames(comparison) <- c("Regression Tree", "Boosted Tree")
+rownames(comparison) <- c("RMSE")
+print(comparison)
+```
+
+
+
+```{r}
+model <- function(x, y){
+  if (x > y) {
+    final <- c("boosted tree")
+  }
+  else {
+    final <- c("regression tree")
+  }
+  return(final)
+}
+
+# model(treeRMSE, boostedRMSE)
+```
+
+From the output, we can conclude that `r model(treeRMSE, boostedRMSE)` is the better model.  
