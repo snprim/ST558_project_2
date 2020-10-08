@@ -692,42 +692,40 @@ body {
 <h3 id="regression-tree">Regression tree</h3>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="kw">modelLookup</span>(<span class="st">&quot;rpart&quot;</span>)</span>
 <span id="cb23-2"><a href="#cb23-2"></a></span>
-<span id="cb23-3"><a href="#cb23-3"></a>bikeTree &lt;-<span class="st"> </span><span class="kw">train</span>(cnt <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> bikeTrain, <span class="dt">method =</span> <span class="st">&quot;rpart&quot;</span>, <span class="dt">trControl =</span> <span class="kw">trainControl</span>(<span class="dt">method =</span> <span class="st">&quot;cv&quot;</span>, <span class="dt">number =</span> <span class="dv">10</span>), <span class="dt">tuneLength =</span> <span class="dv">10</span>)</span></code></pre></div>
-<pre><code>## Warning in nominalTrainWorkflow(x = x, y = y, wts = weights, info = trainInfo, : There
-## were missing values in resampled performance measures.
-</code></pre>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>predTree &lt;-<span class="st"> </span><span class="kw">predict</span>(bikeTree, <span class="dt">newdata =</span> bikeTest)</span>
-<span id="cb25-2"><a href="#cb25-2"></a>treeRMSE &lt;-<span class="st"> </span><span class="kw">sqrt</span>(<span class="kw">mean</span>((predTree <span class="op">-</span><span class="st"> </span>bikeTest<span class="op">$</span>cnt)<span class="op">^</span><span class="dv">2</span>))</span>
-<span id="cb25-3"><a href="#cb25-3"></a><span class="kw">postResample</span>(predTree, bikeTest<span class="op">$</span>cnt)</span></code></pre></div>
+<span id="cb23-3"><a href="#cb23-3"></a>bikeTree &lt;-<span class="st"> </span><span class="kw">train</span>(cnt <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> bikeTrain, <span class="dt">method =</span> <span class="st">&quot;rpart&quot;</span>, <span class="dt">trControl =</span> <span class="kw">trainControl</span>(<span class="dt">method =</span> <span class="st">&quot;LOOCV&quot;</span>), <span class="dt">tuneLength =</span> <span class="dv">10</span>)</span>
+<span id="cb23-4"><a href="#cb23-4"></a></span>
+<span id="cb23-5"><a href="#cb23-5"></a>predTree &lt;-<span class="st"> </span><span class="kw">predict</span>(bikeTree, <span class="dt">newdata =</span> bikeTest)</span>
+<span id="cb23-6"><a href="#cb23-6"></a>treeRMSE &lt;-<span class="st"> </span><span class="kw">sqrt</span>(<span class="kw">mean</span>((predTree <span class="op">-</span><span class="st"> </span>bikeTest<span class="op">$</span>cnt)<span class="op">^</span><span class="dv">2</span>))</span>
+<span id="cb23-7"><a href="#cb23-7"></a><span class="kw">postResample</span>(predTree, bikeTest<span class="op">$</span>cnt)</span></code></pre></div>
 <pre><code>##       RMSE   Rsquared        MAE 
-## 77.9829972  0.7850134 58.0638261
+## 79.1823860  0.7782372 58.7939080
 </code></pre>
 <h3 id="boosted-tree">Boosted Tree</h3>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="kw">modelLookup</span>(<span class="st">&quot;gbm&quot;</span>)</span>
-<span id="cb27-2"><a href="#cb27-2"></a></span>
-<span id="cb27-3"><a href="#cb27-3"></a>boostedBike &lt;-<span class="st"> </span><span class="kw">train</span>(cnt <span class="op">~</span><span class="st">  </span>season <span class="op">+</span><span class="st"> </span>yr <span class="op">+</span><span class="st"> </span>hr <span class="op">+</span><span class="st"> </span>weathersit <span class="op">+</span><span class="st"> </span>atemp <span class="op">+</span><span class="st"> </span>hum <span class="op">+</span><span class="st"> </span>windspeed, <span class="dt">data =</span> bikeTrain, <span class="dt">method =</span> <span class="st">&quot;gbm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>), <span class="dt">trControl =</span> <span class="kw">trainControl</span>(<span class="dt">method =</span> <span class="st">&quot;repeatedcv&quot;</span>, <span class="dt">number =</span> <span class="dv">10</span>, <span class="dt">repeats =</span> <span class="dv">3</span>), <span class="dt">tuneLength =</span> <span class="dv">5</span>, <span class="dt">verbose =</span> <span class="ot">FALSE</span>)</span>
-<span id="cb27-4"><a href="#cb27-4"></a>predBoostedBike &lt;-<span class="st"> </span><span class="kw">predict</span>(boostedBike, <span class="dt">newdata =</span> <span class="kw">select</span>(bikeTest, <span class="op">-</span>cnt))</span>
-<span id="cb27-5"><a href="#cb27-5"></a>boostedRMSE &lt;-<span class="st"> </span><span class="kw">sqrt</span>(<span class="kw">mean</span>((predBoostedBike <span class="op">-</span><span class="st"> </span>bikeTest<span class="op">$</span>cnt)<span class="op">^</span><span class="dv">2</span>))</span>
-<span id="cb27-6"><a href="#cb27-6"></a><span class="kw">postResample</span>(predBoostedBike, bikeTest<span class="op">$</span>cnt)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw">modelLookup</span>(<span class="st">&quot;gbm&quot;</span>)</span>
+<span id="cb25-2"><a href="#cb25-2"></a></span>
+<span id="cb25-3"><a href="#cb25-3"></a>boostedBike &lt;-<span class="st"> </span><span class="kw">train</span>(cnt <span class="op">~</span><span class="st">  </span>season <span class="op">+</span><span class="st"> </span>yr <span class="op">+</span><span class="st"> </span>hr <span class="op">+</span><span class="st"> </span>weathersit <span class="op">+</span><span class="st"> </span>atemp <span class="op">+</span><span class="st"> </span>hum <span class="op">+</span><span class="st"> </span>windspeed, <span class="dt">data =</span> bikeTrain, <span class="dt">method =</span> <span class="st">&quot;gbm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>), <span class="dt">trControl =</span> <span class="kw">trainControl</span>(<span class="dt">method =</span> <span class="st">&quot;repeatedcv&quot;</span>, <span class="dt">number =</span> <span class="dv">10</span>, <span class="dt">repeats =</span> <span class="dv">3</span>), <span class="dt">tuneLength =</span> <span class="dv">5</span>, <span class="dt">verbose =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb25-4"><a href="#cb25-4"></a>predBoostedBike &lt;-<span class="st"> </span><span class="kw">predict</span>(boostedBike, <span class="dt">newdata =</span> <span class="kw">select</span>(bikeTest, <span class="op">-</span>cnt))</span>
+<span id="cb25-5"><a href="#cb25-5"></a>boostedRMSE &lt;-<span class="st"> </span><span class="kw">sqrt</span>(<span class="kw">mean</span>((predBoostedBike <span class="op">-</span><span class="st"> </span>bikeTest<span class="op">$</span>cnt)<span class="op">^</span><span class="dv">2</span>))</span>
+<span id="cb25-6"><a href="#cb25-6"></a><span class="kw">postResample</span>(predBoostedBike, bikeTest<span class="op">$</span>cnt)</span></code></pre></div>
 <pre><code>##       RMSE   Rsquared        MAE 
-## 43.5082247  0.9329673 29.0527429
+## 42.3465794  0.9365094 28.4242565
 </code></pre>
 <h3 id="comparison">Comparison</h3>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>comparison &lt;-<span class="st"> </span><span class="kw">data.frame</span>(treeRMSE, boostedRMSE)</span>
-<span id="cb29-2"><a href="#cb29-2"></a><span class="kw">colnames</span>(comparison) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Regression Tree&quot;</span>, <span class="st">&quot;Boosted Tree&quot;</span>)</span>
-<span id="cb29-3"><a href="#cb29-3"></a><span class="kw">rownames</span>(comparison) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;RMSE&quot;</span>)</span>
-<span id="cb29-4"><a href="#cb29-4"></a><span class="kw">print</span>(comparison)</span></code></pre></div>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>model &lt;-<span class="st"> </span><span class="cf">function</span>(x, y){</span>
-<span id="cb30-2"><a href="#cb30-2"></a>  <span class="cf">if</span> (x <span class="op">&gt;</span><span class="st"> </span>y) {</span>
-<span id="cb30-3"><a href="#cb30-3"></a>    final &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;boosted tree&quot;</span>)</span>
-<span id="cb30-4"><a href="#cb30-4"></a>  }</span>
-<span id="cb30-5"><a href="#cb30-5"></a>  <span class="cf">else</span> {</span>
-<span id="cb30-6"><a href="#cb30-6"></a>    final &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;regression tree&quot;</span>)</span>
-<span id="cb30-7"><a href="#cb30-7"></a>  }</span>
-<span id="cb30-8"><a href="#cb30-8"></a>  <span class="kw">return</span>(final)</span>
-<span id="cb30-9"><a href="#cb30-9"></a>}</span>
-<span id="cb30-10"><a href="#cb30-10"></a></span>
-<span id="cb30-11"><a href="#cb30-11"></a><span class="co"># model(treeRMSE, boostedRMSE)</span></span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>comparison &lt;-<span class="st"> </span><span class="kw">data.frame</span>(treeRMSE, boostedRMSE)</span>
+<span id="cb27-2"><a href="#cb27-2"></a><span class="kw">colnames</span>(comparison) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Regression Tree&quot;</span>, <span class="st">&quot;Boosted Tree&quot;</span>)</span>
+<span id="cb27-3"><a href="#cb27-3"></a><span class="kw">rownames</span>(comparison) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;RMSE&quot;</span>)</span>
+<span id="cb27-4"><a href="#cb27-4"></a><span class="kw">print</span>(comparison)</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>model &lt;-<span class="st"> </span><span class="cf">function</span>(x, y){</span>
+<span id="cb28-2"><a href="#cb28-2"></a>  <span class="cf">if</span> (x <span class="op">&gt;</span><span class="st"> </span>y) {</span>
+<span id="cb28-3"><a href="#cb28-3"></a>    final &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;boosted tree&quot;</span>)</span>
+<span id="cb28-4"><a href="#cb28-4"></a>  }</span>
+<span id="cb28-5"><a href="#cb28-5"></a>  <span class="cf">else</span> {</span>
+<span id="cb28-6"><a href="#cb28-6"></a>    final &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;regression tree&quot;</span>)</span>
+<span id="cb28-7"><a href="#cb28-7"></a>  }</span>
+<span id="cb28-8"><a href="#cb28-8"></a>  <span class="kw">return</span>(final)</span>
+<span id="cb28-9"><a href="#cb28-9"></a>}</span>
+<span id="cb28-10"><a href="#cb28-10"></a></span>
+<span id="cb28-11"><a href="#cb28-11"></a><span class="co"># model(treeRMSE, boostedRMSE)</span></span></code></pre></div>
 <p>From the output, we can conclude that boosted tree is the better model.</p>
 
 </body>

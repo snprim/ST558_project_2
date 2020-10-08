@@ -1,4 +1,4 @@
-Sunday
+Saturday
 ================
 Shih-Ni Prim
 2020-10-07
@@ -12,15 +12,15 @@ Shih-Ni Prim
       - [Boosted Tree](#boosted-tree)
       - [Comparison](#comparison)
 
-This is Sunday’s analysis.
+This is Saturday’s analysis.
 
 ## Introduction
 
 This about bike share shows the information about each day–hours,
 temperature, humidity, weekday, holiday/workday or not, etc.
 
-Since the current analysis is on Sunday, we first find the corresponding
-value for it.
+Since the current analysis is on Saturday, we first find the
+corresponding value for it.
 
 ``` r
 set.seed(7777)
@@ -31,7 +31,7 @@ weekdayNum <- df$i[df$dayz == params$weekday]
 print(weekdayNum)
 ```
 
-    ## [1] "0"
+    ## [1] "6"
 
 ## Data
 
@@ -84,31 +84,31 @@ ggplot(bikeTrain, mapping = aes(x = cnt)) + geom_histogram()
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](Report-Sunday_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](Report-Saturday_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 ggplot(bikeTrain, aes(x = hr, y = cnt)) + geom_point() + geom_jitter()
 ```
 
-![](Report-Sunday_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+![](Report-Saturday_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
 
 ``` r
 ggplot(bikeTrain, aes(x = yr, y = cnt)) + geom_boxplot(aes(group = yr))
 ```
 
-![](Report-Sunday_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
+![](Report-Saturday_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
 
 ``` r
 cor(bikeTrain$mnth, bikeTrain$season)
 ```
 
-    ## [1] 0.8354802
+    ## [1] 0.8063518
 
 ``` r
 ggplot(bikeTrain, aes(x = weathersit, y = windspeed)) + geom_jitter()
 ```
 
-![](Report-Sunday_files/figure-gfm/unnamed-chunk-14-4.png)<!-- -->
+![](Report-Saturday_files/figure-gfm/unnamed-chunk-6-4.png)<!-- -->
 
 ``` r
 cor(bikeTrain$holiday, bikeTrain$workingday)
@@ -122,7 +122,7 @@ cor(bikeTrain$holiday, bikeTrain$workingday)
 cor(bikeTrain$temp, bikeTrain$atemp)
 ```
 
-    ## [1] 0.993001
+    ## [1] 0.9922486
 
 ``` r
 var(bikeTrain$holiday)
@@ -162,7 +162,7 @@ postResample(predTree, bikeTest$cnt)
 ```
 
     ##       RMSE   Rsquared        MAE 
-    ## 79.1823860  0.7782372 58.7939080
+    ## 76.5578387  0.8213449 57.9135731
 
 ### Boosted Tree
 
@@ -176,7 +176,7 @@ postResample(predBoostedBike, bikeTest$cnt)
 ```
 
     ##       RMSE   Rsquared        MAE 
-    ## 42.3465794  0.9365094 28.4242565
+    ## 42.4548315  0.9447948 28.6544969
 
 ### Comparison
 

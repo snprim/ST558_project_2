@@ -109,10 +109,10 @@ bikeTest <- select(bikeTest, season, yr, hr, weathersit, atemp, hum, windspeed, 
 
 ### Regression tree  
 
-```{r}
+```{r, cache = TRUE}
 modelLookup("rpart")
 
-bikeTree <- train(cnt ~ ., data = bikeTrain, method = "rpart", trControl = trainControl(method = "cv", number = 10), tuneLength = 10)
+bikeTree <- train(cnt ~ ., data = bikeTrain, method = "rpart", trControl = trainControl(method = "LOOCV"), tuneLength = 10)
 
 predTree <- predict(bikeTree, newdata = bikeTest)
 treeRMSE <- sqrt(mean((predTree - bikeTest$cnt)^2))
@@ -121,7 +121,7 @@ postResample(predTree, bikeTest$cnt)
 
 ### Boosted Tree  
 
-```{r}
+```{r, cache = TRUE}
 modelLookup("gbm")
 
 boostedBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "gbm", preProcess = c("center", "scale"), trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3), tuneLength = 5, verbose = FALSE)

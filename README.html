@@ -606,9 +606,10 @@ body {
 <li><a href="#description">Description</a></li>
 <li><a href="#sub-documents">Sub-documents</a></li>
 <li><a href="#required-packages">Required Packages</a></li>
+<li><a href="#how-to-automate-the-reports">How to automate the reports</a></li>
 </ul>
-<p>Test: This is project 2.</p>
 <h2 id="description">Description</h2>
+<p>This repository uses data from <a href="https://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset">a bike sharing dataset</a> to predict the number of bike rentals in a certain hour of a certain day.</p>
 <h2 id="sub-documents">Sub-documents</h2>
 <ul>
 <li>The analysis for <a href="Report-Monday.md">Monday is available here</a></li>
@@ -620,6 +621,36 @@ body {
 <li>The analysis for <a href="Report-Sunday.md">Sunday is available here</a></li>
 </ul>
 <h2 id="required-packages">Required Packages</h2>
+<ul>
+<li><code>tidyverse</code></li>
+<li><code>caret</code></li>
+<li><code>rmarkdown</code></li>
+</ul>
+<h2 id="how-to-automate-the-reports">How to automate the reports</h2>
+<p>To generate reports for each of the seven days in a week, we can simply change the parameter and render a different file. In the code chunks, we would use <code>params$weekday</code> instead of the values for the given day. The code chunk below offers two methods; the first one creates a data frame for each file name and parameter, and the second one simply lists all the code for rendering each file.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># method 1</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a>dayz &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Sunday&quot;</span>, <span class="st">&quot;Monday&quot;</span>, <span class="st">&quot;Tuesday&quot;</span>, <span class="st">&quot;Wednesday&quot;</span>, <span class="st">&quot;Thursday&quot;</span>, <span class="st">&quot;Friday&quot;</span>, <span class="st">&quot;Saturday&quot;</span>, <span class="st">&quot;Sunday&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3"></a>paramz &lt;-<span class="st"> </span><span class="kw">lapply</span>(dayz, <span class="dt">FUN =</span> <span class="cf">function</span>(x){<span class="kw">list</span>(<span class="dt">weekday =</span> x)})</span>
+<span id="cb1-4"><a href="#cb1-4"></a>output_file &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;Report-&quot;</span>, dayz, <span class="st">&quot;.md&quot;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5"></a>reports &lt;-<span class="st"> </span><span class="kw">tibble</span>(output_file, paramz)</span>
+<span id="cb1-6"><a href="#cb1-6"></a></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="kw">library</span>(rmarkdown)</span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="kw">apply</span>(reports, <span class="dt">MARGIN =</span> <span class="dv">1</span>,</span>
+<span id="cb1-9"><a href="#cb1-9"></a>      <span class="dt">FUN =</span> <span class="cf">function</span>(x){</span>
+<span id="cb1-10"><a href="#cb1-10"></a>          <span class="kw">render</span>(<span class="dt">input =</span> <span class="st">&quot;analysis.Rmd&quot;</span>,</span>
+<span id="cb1-11"><a href="#cb1-11"></a>                 <span class="dt">output_format =</span> <span class="st">&quot;github_document&quot;</span>,</span>
+<span id="cb1-12"><a href="#cb1-12"></a>                 <span class="dt">output_file =</span> x[[<span class="dv">1</span>]],</span>
+<span id="cb1-13"><a href="#cb1-13"></a>                 <span class="dt">params =</span> x[[<span class="dv">2</span>]])</span>
+<span id="cb1-14"><a href="#cb1-14"></a>          })</span>
+<span id="cb1-15"><a href="#cb1-15"></a></span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="co"># method 2</span></span>
+<span id="cb1-17"><a href="#cb1-17"></a>rmarkdown<span class="op">::</span><span class="kw">render</span>(<span class="dt">input =</span> <span class="st">&quot;analysis.Rmd&quot;</span>, <span class="dt">output_format =</span> <span class="st">&quot;github_document&quot;</span>, <span class="dt">output_file =</span> <span class="st">&quot;Report-Sunday.md&quot;</span>, <span class="dt">params =</span> <span class="kw">list</span>(<span class="dt">weekday =</span> <span class="st">&quot;Sunday&quot;</span>))</span>
+<span id="cb1-18"><a href="#cb1-18"></a>rmarkdown<span class="op">::</span><span class="kw">render</span>(<span class="dt">input =</span> <span class="st">&quot;analysis.Rmd&quot;</span>, <span class="dt">output_format =</span> <span class="st">&quot;github_document&quot;</span>, <span class="dt">output_file =</span> <span class="st">&quot;Report-Monday.md&quot;</span>, <span class="dt">params =</span> <span class="kw">list</span>(<span class="dt">weekday =</span> <span class="st">&quot;Monday&quot;</span>))</span>
+<span id="cb1-19"><a href="#cb1-19"></a>rmarkdown<span class="op">::</span><span class="kw">render</span>(<span class="dt">input =</span> <span class="st">&quot;analysis.Rmd&quot;</span>, <span class="dt">output_format =</span> <span class="st">&quot;github_document&quot;</span>, <span class="dt">output_file =</span> <span class="st">&quot;Report-Tuesday.md&quot;</span>, <span class="dt">params =</span> <span class="kw">list</span>(<span class="dt">weekday =</span> <span class="st">&quot;Tuesday&quot;</span>))</span>
+<span id="cb1-20"><a href="#cb1-20"></a>rmarkdown<span class="op">::</span><span class="kw">render</span>(<span class="dt">input =</span> <span class="st">&quot;analysis.Rmd&quot;</span>, <span class="dt">output_format =</span> <span class="st">&quot;github_document&quot;</span>, <span class="dt">output_file =</span> <span class="st">&quot;Report-Wednesday.md&quot;</span>, <span class="dt">params =</span> <span class="kw">list</span>(<span class="dt">weekday =</span> <span class="st">&quot;Wednesday&quot;</span>))</span>
+<span id="cb1-21"><a href="#cb1-21"></a>rmarkdown<span class="op">::</span><span class="kw">render</span>(<span class="dt">input =</span> <span class="st">&quot;analysis.Rmd&quot;</span>, <span class="dt">output_format =</span> <span class="st">&quot;github_document&quot;</span>, <span class="dt">output_file =</span> <span class="st">&quot;Report-Thursday.md&quot;</span>, <span class="dt">params =</span> <span class="kw">list</span>(<span class="dt">weekday =</span> <span class="st">&quot;Thursday&quot;</span>))</span>
+<span id="cb1-22"><a href="#cb1-22"></a>rmarkdown<span class="op">::</span><span class="kw">render</span>(<span class="dt">input =</span> <span class="st">&quot;analysis.Rmd&quot;</span>, <span class="dt">output_format =</span> <span class="st">&quot;github_document&quot;</span>, <span class="dt">output_file =</span> <span class="st">&quot;Report-Friday.md&quot;</span>, <span class="dt">params =</span> <span class="kw">list</span>(<span class="dt">weekday =</span> <span class="st">&quot;Friday&quot;</span>))</span>
+<span id="cb1-23"><a href="#cb1-23"></a>rmarkdown<span class="op">::</span><span class="kw">render</span>(<span class="dt">input =</span> <span class="st">&quot;analysis.Rmd&quot;</span>, <span class="dt">output_format =</span> <span class="st">&quot;github_document&quot;</span>, <span class="dt">output_file =</span> <span class="st">&quot;Report-Saturday.md&quot;</span>, <span class="dt">params =</span> <span class="kw">list</span>(<span class="dt">weekday =</span> <span class="st">&quot;Saturday&quot;</span>))</span></code></pre></div>
 
 </body>
 </html>
