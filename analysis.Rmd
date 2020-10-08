@@ -9,7 +9,7 @@ editor_options:
 ---
 
 ---
-title: Report: `r params$weekday`  
+title: `r params$weekday`  
 author: "Shih-Ni Prim"  
 date: "2020-10-07"  
 ---
@@ -168,7 +168,7 @@ We can put the RMSE from the two models together for comparison.
 comparison <- data.frame(treeRMSE, boostedRMSE)
 colnames(comparison) <- c("Regression Tree", "Boosted Tree")
 rownames(comparison) <- c("RMSE")
-knitr::kable(comparison, caption = "Comparison between Regression Tree and Boosted Tree")
+knitr::kable(comparison)
 ```
 
 
@@ -186,5 +186,5 @@ model <- function(x, y){
 }
 ```
 
-From the output, we can conclude that `r model(treeRMSE, boostedRMSE)` is the better model.  
+From the output, we can conclude that `r model(treeRMSE, boostedRMSE)` is the better model for `r params$weekday` data.  
 

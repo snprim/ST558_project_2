@@ -1,3 +1,7 @@
+Sunday
+================
+Shih-Ni Prim
+2020-10-07
 
   - [Introduction](#introduction)
   - [Setting the Value for the
@@ -257,14 +261,12 @@ We can put the RMSE from the two models together for comparison.
 comparison <- data.frame(treeRMSE, boostedRMSE)
 colnames(comparison) <- c("Regression Tree", "Boosted Tree")
 rownames(comparison) <- c("RMSE")
-knitr::kable(comparison, caption = "Comparison between Regression Tree and Boosted Tree")
+knitr::kable(comparison)
 ```
 
 |      | Regression Tree | Boosted Tree |
 | :--- | --------------: | -----------: |
 | RMSE |        79.18239 |     40.48597 |
-
-Comparison between Regression Tree and Boosted Tree
 
 ``` r
 # a function to generate the name of the best model
@@ -279,4 +281,5 @@ model <- function(x, y){
 }
 ```
 
-From the output, we can conclude that boosted tree is the better model.
+From the output, we can conclude that boosted tree is the better model
+for Sunday data.

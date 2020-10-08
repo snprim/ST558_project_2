@@ -600,6 +600,8 @@ body {
 
 <body>
 
+<h1 id="sunday">Sunday</h1>
+<p>Shih-Ni Prim 2020-10-07</p>
 <ul>
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#setting-the-value-for-the-parameter">Setting the Value for the Parameter</a></li>
@@ -748,7 +750,7 @@ body {
 <div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>comparison &lt;-<span class="st"> </span><span class="kw">data.frame</span>(treeRMSE, boostedRMSE)</span>
 <span id="cb29-2"><a href="#cb29-2"></a><span class="kw">colnames</span>(comparison) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Regression Tree&quot;</span>, <span class="st">&quot;Boosted Tree&quot;</span>)</span>
 <span id="cb29-3"><a href="#cb29-3"></a><span class="kw">rownames</span>(comparison) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;RMSE&quot;</span>)</span>
-<span id="cb29-4"><a href="#cb29-4"></a>knitr<span class="op">::</span><span class="kw">kable</span>(comparison, <span class="dt">caption =</span> <span class="st">&quot;Comparison between Regression Tree and Boosted Tree&quot;</span>)</span></code></pre></div>
+<span id="cb29-4"><a href="#cb29-4"></a>knitr<span class="op">::</span><span class="kw">kable</span>(comparison)</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -765,7 +767,6 @@ body {
 </tr>
 </tbody>
 </table>
-<p>Comparison between Regression Tree and Boosted Tree</p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="co"># a function to generate the name of the best model</span></span>
 <span id="cb30-2"><a href="#cb30-2"></a>model &lt;-<span class="st"> </span><span class="cf">function</span>(x, y){</span>
 <span id="cb30-3"><a href="#cb30-3"></a>  <span class="cf">if</span> (x <span class="op">&gt;</span><span class="st"> </span>y) {</span>
@@ -776,7 +777,7 @@ body {
 <span id="cb30-8"><a href="#cb30-8"></a>  }</span>
 <span id="cb30-9"><a href="#cb30-9"></a>  <span class="kw">return</span>(final)</span>
 <span id="cb30-10"><a href="#cb30-10"></a>}</span></code></pre></div>
-<p>From the output, we can conclude that boosted tree is the better model.</p>
+<p>From the output, we can conclude that boosted tree is the better model for Sunday data.</p>
 
 </body>
 </html>
