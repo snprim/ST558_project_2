@@ -68,9 +68,9 @@ Now we read in the data. Two datasets are listed on [the link](https://archive.i
 
 ```{r}
 bikes <- read_csv("../Bike-Sharing-Dataset/hour.csv")
-head(bikes)
+# head(bikes)
 analysis <- bikes %>% filter(weekday == weekdayNum) %>% select(-casual, -registered) %>% select(dteday, weekday, everything()) 
-head(analysis)
+# head(analysis)
 ```
 
 ## Splitting Data  
