@@ -9,7 +9,7 @@ editor_options:
 ---
 
 ---
-title: `r params$weekday`  
+title: Report: `r params$weekday`  
 author: "Shih-Ni Prim"  
 date: "2020-10-07"  
 ---
@@ -45,11 +45,11 @@ rmarkdown::render(input = "analysis.Rmd", output_format = "github_document", out
 rmarkdown::render(input = "analysis.Rmd", output_format = "github_document", output_file = "Report-Saturday.md", params = list(weekday = "Saturday"))
 ```
 
-This is `r params$weekday`'s analysis.  
-
 ## Introduction  
 
-This about bike share shows the information about each day--hours, temperature, humidity, weekday, holiday/workday or not, etc.  
+Now we take a look at `r params$weekday`'s analysis. This dataset contains information about bike sharing. We have a variety of predictors, including hours, temperature, humidity, weekday, holiday/workday or not, etc. We will use the variable `cnt` as the response variable.  
+
+## Setting the Value for the Parameter
 
 Since the current analysis is on `r params$weekday`, we first find the corresponding value for it.  
 
@@ -62,19 +62,20 @@ weekdayNum <- df$i[df$dayz == params$weekday]
 print(weekdayNum)
 ```
 
-
 ## Data  
 
-Now we read in the data.  
+Now we read in the data. Two datasets are listed on [the link](https://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset), one including the `hr` variable, and one treating each day as one observation and thus not including the `hr` variable. Since hours--the time in the day--should be a meaningful predictor for the number of bike rentals, we use the dataset with the `hr` variable  
 
 ```{r}
 bikes <- read_csv("../Bike-Sharing-Dataset/hour.csv")
-# head(bikes)
+head(bikes)
 analysis <- bikes %>% filter(weekday == weekdayNum) %>% select(-casual, -registered) %>% select(dteday, weekday, everything()) 
-# head(analysis)
+head(analysis)
 ```
 
-## Splitting up to training and test sets  
+## Splitting Data  
+
+We first split up the data into two sets: training and test sets. The training set has about 70% of the data, and the test set has about 30%. Splitting up the data is important, because we want to test the model on a set that is not used in training. Otherwise, we risk overfitting.  
 
 ```{r}
 train <- sample(1:nrow(analysis), size = nrow(analysis)*0.7)
@@ -84,30 +85,57 @@ bikeTrain <- analysis[train,]
 bikeTest <- analysis[test,]
 ```
 
+## Summaries and Exploratory Data Analysis
+
+To decide which variables to include in our models, we first take a quick look at the data. We can look at summaries of numerical variables.  
+
+```{r}
+summary(bikeTrain)
+```
+
+Below we look at three plots. The first plot shows the histogram of bike rentals (`cnt`) on `r params$weekday`. The second plot shows that `cnt` does vary in different hours. The third plot shows that `cnt` varies between the two years. So we know we should keep `hr` and `yr` as predictors.  
+
 ```{r}
 ggplot(bikeTrain, mapping = aes(x = cnt)) + geom_histogram()
 ggplot(bikeTrain, aes(x = hr, y = cnt)) + geom_point() + geom_jitter()
 ggplot(bikeTrain, aes(x = yr, y = cnt)) + geom_boxplot(aes(group = yr))
-cor(bikeTrain$mnth, bikeTrain$season)
+```
+
+Next we look at correlations of different variables. Weather and windspeed do not seem correlate, so we will keep both `weathersit` and `windspeed`. 
+
+```{r}
 ggplot(bikeTrain, aes(x = weathersit, y = windspeed)) + geom_jitter()
+```
+
+Several pairs of variables seem highly correlated--`season` and `mnth`, `holiday` and `workingday`--so we'll remove one from each pair. 
+
+```{r}
+cor(bikeTrain$season, bikeTrain$mnth)
 cor(bikeTrain$holiday, bikeTrain$workingday)
 cor(bikeTrain$temp, bikeTrain$atemp)
+```
+
+The variance of `workingday` and `holiday` is 0 or too small.  
+
+```{r}
 var(bikeTrain$holiday)
 var(bikeTrain$workingday)
 ```
 
-`mnth` and `season` as well as `workingday` and `holiday` are highly correlated. Also, `instant` and `dteday` are for record-keeping. The variance of `workingday` and `holiday` is 0 or too small. Thus, we decide to keep these as the predictors: `season`, `yr`, `hr`, `weathersit`, `atemp`, `hum`, and `windspeed`.  
+Also, `instant` and `dteday` are for record-keeping. Thus, we decide to keep these as the predictors: `season`, `yr`, `hr`, `weathersit`, `atemp`, `hum`, and `windspeed`.  
 
 ```{r}
 bikeTrain <- select(bikeTrain, season, yr, hr, weathersit, atemp, hum, windspeed, cnt)
 bikeTest <- select(bikeTest, season, yr, hr, weathersit, atemp, hum, windspeed, cnt)
 ```
 
-
 ## Fitting models  
 
+Now we have a training set and chose the predictors, we can use two models--regression tree and boosted tree--to fit the training data.  
 
 ### Regression tree  
+
+For regression tree, we use the `caret` package and apply the leave-one-out cross validation method (thus the argument `method = "LOOCV"`). We set the `tuneLength` as 10 and let the model chooses the best model automatically. Then we use the model to predict `cnt` on the test data. Finally, we calculate RMSE to see the fit of the model and for comparison.  
 
 ```{r, cache = TRUE}
 modelLookup("rpart")
@@ -121,10 +149,12 @@ postResample(predTree, bikeTest$cnt)
 
 ### Boosted Tree  
 
+Now we use one of the ensemble method, boosted tree. We again use `caret` package and set the method as `gbm`. We use repeated cross validation (`repeatedcv`) and again set the `tuneLength` as 10 and let the model chooses the best model automatically. Then we use the model to predict `cnt` on the test data. Finally, we calculate RMSE to see the fit of the model and for comparison.  
+
 ```{r, cache = TRUE}
 modelLookup("gbm")
 
-boostedBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "gbm", preProcess = c("center", "scale"), trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3), tuneLength = 5, verbose = FALSE)
+boostedBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "gbm", preProcess = c("center", "scale"), trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3), tuneLength = 10, verbose = FALSE)
 predBoostedBike <- predict(boostedBike, newdata = select(bikeTest, -cnt))
 boostedRMSE <- sqrt(mean((predBoostedBike - bikeTest$cnt)^2))
 postResample(predBoostedBike, bikeTest$cnt)
@@ -132,16 +162,19 @@ postResample(predBoostedBike, bikeTest$cnt)
 
 ### Comparison  
 
+We can put the RMSE from the two models together for comparison.  
+
 ```{r}
 comparison <- data.frame(treeRMSE, boostedRMSE)
 colnames(comparison) <- c("Regression Tree", "Boosted Tree")
 rownames(comparison) <- c("RMSE")
-print(comparison)
+knitr::kable(comparison, caption = "Comparison between Regression Tree and Boosted Tree")
 ```
 
 
 
 ```{r}
+# a function to generate the name of the best model
 model <- function(x, y){
   if (x > y) {
     final <- c("boosted tree")
@@ -151,8 +184,7 @@ model <- function(x, y){
   }
   return(final)
 }
-
-# model(treeRMSE, boostedRMSE)
 ```
 
 From the output, we can conclude that `r model(treeRMSE, boostedRMSE)` is the better model.  
+

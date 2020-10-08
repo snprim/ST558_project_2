@@ -1,5 +1,5 @@
 ---
-title: "Analysis"
+title: "Model Fitting and Report Automation with Bike Sharing Data"
 author: "Shih-Ni Prim"
 date: "2020-10-07"
 output: 

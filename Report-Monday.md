@@ -1,23 +1,24 @@
-Monday
-================
-Shih-Ni Prim
-2020-10-07
 
   - [Introduction](#introduction)
+  - [Setting the Value for the
+    Parameter](#setting-the-value-for-the-parameter)
   - [Data](#data)
-  - [Splitting up to training and test
-    sets](#splitting-up-to-training-and-test-sets)
+  - [Splitting Data](#splitting-data)
+  - [Summaries and Exploratory Data
+    Analysis](#summaries-and-exploratory-data-analysis)
   - [Fitting models](#fitting-models)
       - [Regression tree](#regression-tree)
       - [Boosted Tree](#boosted-tree)
       - [Comparison](#comparison)
 
-This is Monday’s analysis.
-
 ## Introduction
 
-This about bike share shows the information about each day–hours,
-temperature, humidity, weekday, holiday/workday or not, etc.
+Now we take a look at Monday’s analysis. This dataset contains
+information about bike sharing. We have a variety of predictors,
+including hours, temperature, humidity, weekday, holiday/workday or not,
+etc. We will use the variable `cnt` as the response variable.
+
+## Setting the Value for the Parameter
 
 Since the current analysis is on Monday, we first find the corresponding
 value for it.
@@ -35,7 +36,12 @@ print(weekdayNum)
 
 ## Data
 
-Now we read in the data.
+Now we read in the data. Two datasets are listed on [the
+link](https://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset), one
+including the `hr` variable, and one treating each day as one
+observation and thus not including the `hr` variable. Since hours–the
+time in the day–should be a meaningful predictor for the number of bike
+rentals, we use the dataset with the `hr` variable
 
 ``` r
 bikes <- read_csv("../Bike-Sharing-Dataset/hour.csv")
@@ -63,12 +69,17 @@ bikes <- read_csv("../Bike-Sharing-Dataset/hour.csv")
     ## )
 
 ``` r
-# head(bikes)
+head(bikes)
 analysis <- bikes %>% filter(weekday == weekdayNum) %>% select(-casual, -registered) %>% select(dteday, weekday, everything()) 
-# head(analysis)
+head(analysis)
 ```
 
-## Splitting up to training and test sets
+## Splitting Data
+
+We first split up the data into two sets: training and test sets. The
+training set has about 70% of the data, and the test set has about 30%.
+Splitting up the data is important, because we want to test the model on
+a set that is not used in training. Otherwise, we risk overfitting.
 
 ``` r
 train <- sample(1:nrow(analysis), size = nrow(analysis)*0.7)
@@ -78,37 +89,80 @@ bikeTrain <- analysis[train,]
 bikeTest <- analysis[test,]
 ```
 
+## Summaries and Exploratory Data Analysis
+
+To decide which variables to include in our models, we first take a
+quick look at the data. We can look at summaries of numerical variables.
+
+``` r
+summary(bikeTrain)
+```
+
+    ##      dteday              weekday     instant          season            yr        
+    ##  Min.   :2011-01-03   Min.   :1   Min.   :   48   Min.   :1.000   Min.   :0.0000  
+    ##  1st Qu.:2011-06-27   1st Qu.:1   1st Qu.: 4170   1st Qu.:2.000   1st Qu.:0.0000  
+    ##  Median :2011-12-19   Median :1   Median : 8359   Median :2.000   Median :0.0000  
+    ##  Mean   :2011-12-26   Mean   :1   Mean   : 8542   Mean   :2.481   Mean   :0.4916  
+    ##  3rd Qu.:2012-06-25   3rd Qu.:1   3rd Qu.:12872   3rd Qu.:3.000   3rd Qu.:1.0000  
+    ##  Max.   :2012-12-31   Max.   :1   Max.   :17379   Max.   :4.000   Max.   :1.0000  
+    ##       mnth             hr           holiday         workingday       weathersit   
+    ##  Min.   : 1.00   Min.   : 0.00   Min.   :0.0000   Min.   :0.0000   Min.   :1.000  
+    ##  1st Qu.: 4.00   1st Qu.: 6.00   1st Qu.:0.0000   1st Qu.:1.0000   1st Qu.:1.000  
+    ##  Median : 7.00   Median :12.00   Median :0.0000   Median :1.0000   Median :1.000  
+    ##  Mean   : 6.46   Mean   :11.52   Mean   :0.1452   Mean   :0.8548   Mean   :1.435  
+    ##  3rd Qu.: 9.00   3rd Qu.:17.00   3rd Qu.:0.0000   3rd Qu.:1.0000   3rd Qu.:2.000  
+    ##  Max.   :12.00   Max.   :23.00   Max.   :1.0000   Max.   :1.0000   Max.   :3.000  
+    ##       temp            atemp             hum          windspeed           cnt       
+    ##  Min.   :0.0200   Min.   :0.0606   Min.   :0.150   Min.   :0.0000   Min.   :  1.0  
+    ##  1st Qu.:0.3400   1st Qu.:0.3333   1st Qu.:0.490   1st Qu.:0.1045   1st Qu.: 36.0  
+    ##  Median :0.5200   Median :0.5000   Median :0.640   Median :0.1642   Median :136.0  
+    ##  Mean   :0.4948   Mean   :0.4751   Mean   :0.635   Mean   :0.1888   Mean   :182.1  
+    ##  3rd Qu.:0.6600   3rd Qu.:0.6212   3rd Qu.:0.780   3rd Qu.:0.2537   3rd Qu.:268.0  
+    ##  Max.   :0.9200   Max.   :0.8485   Max.   :1.000   Max.   :0.7164   Max.   :968.0
+
+Below we look at three plots. The first plot shows the histogram of bike
+rentals (`cnt`) on Monday. The second plot shows that `cnt` does vary in
+different hours. The third plot shows that `cnt` varies between the two
+years. So we know we should keep `hr` and `yr` as predictors.
+
 ``` r
 ggplot(bikeTrain, mapping = aes(x = cnt)) + geom_histogram()
 ```
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](Report-Monday_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](Report-Monday_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 ggplot(bikeTrain, aes(x = hr, y = cnt)) + geom_point() + geom_jitter()
 ```
 
-![](Report-Monday_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
+![](Report-Monday_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
 
 ``` r
 ggplot(bikeTrain, aes(x = yr, y = cnt)) + geom_boxplot(aes(group = yr))
 ```
 
-![](Report-Monday_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
+![](Report-Monday_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
 
-``` r
-cor(bikeTrain$mnth, bikeTrain$season)
-```
-
-    ## [1] 0.840952
+Next we look at correlations of different variables. Weather and
+windspeed do not seem correlate, so we will keep both `weathersit` and
+`windspeed`.
 
 ``` r
 ggplot(bikeTrain, aes(x = weathersit, y = windspeed)) + geom_jitter()
 ```
 
-![](Report-Monday_files/figure-gfm/unnamed-chunk-6-4.png)<!-- -->
+![](Report-Monday_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+Several pairs of variables seem highly correlated–`season` and `mnth`,
+`holiday` and `workingday`–so we’ll remove one from each pair.
+
+``` r
+cor(bikeTrain$season, bikeTrain$mnth)
+```
+
+    ## [1] 0.840952
 
 ``` r
 cor(bikeTrain$holiday, bikeTrain$workingday)
@@ -122,6 +176,8 @@ cor(bikeTrain$temp, bikeTrain$atemp)
 
     ## [1] 0.9931593
 
+The variance of `workingday` and `holiday` is 0 or too small.
+
 ``` r
 var(bikeTrain$holiday)
 ```
@@ -134,11 +190,9 @@ var(bikeTrain$workingday)
 
     ## [1] 0.1242205
 
-`mnth` and `season` as well as `workingday` and `holiday` are highly
-correlated. Also, `instant` and `dteday` are for record-keeping. The
-variance of `workingday` and `holiday` is 0 or too small. Thus, we
-decide to keep these as the predictors: `season`, `yr`, `hr`,
-`weathersit`, `atemp`, `hum`, and `windspeed`.
+Also, `instant` and `dteday` are for record-keeping. Thus, we decide to
+keep these as the predictors: `season`, `yr`, `hr`, `weathersit`,
+`atemp`, `hum`, and `windspeed`.
 
 ``` r
 bikeTrain <- select(bikeTrain, season, yr, hr, weathersit, atemp, hum, windspeed, cnt)
@@ -147,7 +201,17 @@ bikeTest <- select(bikeTest, season, yr, hr, weathersit, atemp, hum, windspeed, 
 
 ## Fitting models
 
+Now we have a training set and chose the predictors, we can use two
+models–regression tree and boosted tree–to fit the training data.
+
 ### Regression tree
+
+For regression tree, we use the `caret` package and apply the
+leave-one-out cross validation method (thus the argument `method =
+"LOOCV"`). We set the `tuneLength` as 10 and let the model chooses the
+best model automatically. Then we use the model to predict `cnt` on the
+test data. Finally, we calculate RMSE to see the fit of the model and
+for comparison.
 
 ``` r
 modelLookup("rpart")
@@ -164,28 +228,44 @@ postResample(predTree, bikeTest$cnt)
 
 ### Boosted Tree
 
+Now we use one of the ensemble method, boosted tree. We again use
+`caret` package and set the method as `gbm`. We use repeated cross
+validation (`repeatedcv`) and again set the `tuneLength` as 10 and let
+the model chooses the best model automatically. Then we use the model to
+predict `cnt` on the test data. Finally, we calculate RMSE to see the
+fit of the model and for comparison.
+
 ``` r
 modelLookup("gbm")
 
-boostedBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "gbm", preProcess = c("center", "scale"), trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3), tuneLength = 5, verbose = FALSE)
+boostedBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "gbm", preProcess = c("center", "scale"), trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3), tuneLength = 10, verbose = FALSE)
 predBoostedBike <- predict(boostedBike, newdata = select(bikeTest, -cnt))
 boostedRMSE <- sqrt(mean((predBoostedBike - bikeTest$cnt)^2))
 postResample(predBoostedBike, bikeTest$cnt)
 ```
 
     ##       RMSE   Rsquared        MAE 
-    ## 55.6058366  0.9111149 36.5244825
+    ## 54.3821080  0.9143932 35.5670403
 
 ### Comparison
+
+We can put the RMSE from the two models together for comparison.
 
 ``` r
 comparison <- data.frame(treeRMSE, boostedRMSE)
 colnames(comparison) <- c("Regression Tree", "Boosted Tree")
 rownames(comparison) <- c("RMSE")
-print(comparison)
+knitr::kable(comparison, caption = "Comparison between Regression Tree and Boosted Tree")
 ```
 
+|      | Regression Tree | Boosted Tree |
+| :--- | --------------: | -----------: |
+| RMSE |        92.99203 |     54.38211 |
+
+Comparison between Regression Tree and Boosted Tree
+
 ``` r
+# a function to generate the name of the best model
 model <- function(x, y){
   if (x > y) {
     final <- c("boosted tree")
@@ -195,8 +275,6 @@ model <- function(x, y){
   }
   return(final)
 }
-
-# model(treeRMSE, boostedRMSE)
 ```
 
 From the output, we can conclude that boosted tree is the better model.
