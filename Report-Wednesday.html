@@ -613,6 +613,7 @@ body {
 <li><a href="#regression-tree">Regression tree</a></li>
 <li><a href="#boosted-tree">Boosted Tree</a></li>
 <li><a href="#comparison">Comparison</a></li>
+<li><a href="#final-model">Final Model</a></li>
 </ul></li>
 </ul>
 <h2 id="introduction">Introduction</h2>
@@ -721,61 +722,74 @@ body {
 <h2 id="fitting-models">Fitting models</h2>
 <p>Now we have a final training set and have chosen the predictors, we can use two models–regression tree and boosted tree–to fit the training data.</p>
 <h3 id="regression-tree">Regression tree</h3>
+<p>A regression tree is one of the tree based methods for supervised learning with the goal of predicting a continuous response. It splits up predictor space into different regions, and the prediction of each region is often the mean of observations in that region.</p>
 <p>For regression tree, we use the <code>caret</code> package and apply the leave-one-out cross validation method (thus the argument <code>method = &quot;LOOCV&quot;</code>). We set the <code>tuneLength</code> as 10 and let the model chooses the best model automatically. Then we use the model to predict <code>cnt</code> on the test data. Finally, we calculate RMSE to check the fit of the model.</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw">modelLookup</span>(<span class="st">&quot;rpart&quot;</span>)</span>
 <span id="cb25-2"><a href="#cb25-2"></a></span>
 <span id="cb25-3"><a href="#cb25-3"></a>bikeTree &lt;-<span class="st"> </span><span class="kw">train</span>(cnt <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> bikeTrain, <span class="dt">method =</span> <span class="st">&quot;rpart&quot;</span>, <span class="dt">trControl =</span> <span class="kw">trainControl</span>(<span class="dt">method =</span> <span class="st">&quot;LOOCV&quot;</span>), <span class="dt">tuneLength =</span> <span class="dv">10</span>)</span>
 <span id="cb25-4"><a href="#cb25-4"></a></span>
 <span id="cb25-5"><a href="#cb25-5"></a>predTree &lt;-<span class="st"> </span><span class="kw">predict</span>(bikeTree, <span class="dt">newdata =</span> bikeTest)</span>
-<span id="cb25-6"><a href="#cb25-6"></a>treeRMSE &lt;-<span class="st"> </span><span class="kw">sqrt</span>(<span class="kw">mean</span>((predTree <span class="op">-</span><span class="st"> </span>bikeTest<span class="op">$</span>cnt)<span class="op">^</span><span class="dv">2</span>))</span>
-<span id="cb25-7"><a href="#cb25-7"></a><span class="kw">postResample</span>(predTree, bikeTest<span class="op">$</span>cnt)</span></code></pre></div>
-<pre><code>##       RMSE   Rsquared        MAE 
-## 99.8865002  0.7390699 69.4344029
-</code></pre>
+<span id="cb25-6"><a href="#cb25-6"></a>treeResult &lt;-<span class="st"> </span><span class="kw">postResample</span>(predTree, bikeTest<span class="op">$</span>cnt)</span></code></pre></div>
 <h3 id="boosted-tree">Boosted Tree</h3>
-<p>Now we use one of the ensemble methods, boosted tree. We again use <code>caret</code> package and set the method as <code>gbm</code>. We use repeated cross validation (<code>repeatedcv</code>) and set the <code>tuneLength</code> as 10 and let the model chooses the best model automatically. Then we use the model to predict <code>cnt</code> on the test data. Finally, we calculate RMSE to check the fit of the model.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="kw">modelLookup</span>(<span class="st">&quot;gbm&quot;</span>)</span>
-<span id="cb27-2"><a href="#cb27-2"></a></span>
-<span id="cb27-3"><a href="#cb27-3"></a>boostedBike &lt;-<span class="st"> </span><span class="kw">train</span>(cnt <span class="op">~</span><span class="st">  </span>season <span class="op">+</span><span class="st"> </span>yr <span class="op">+</span><span class="st"> </span>hr <span class="op">+</span><span class="st"> </span>weathersit <span class="op">+</span><span class="st"> </span>atemp <span class="op">+</span><span class="st"> </span>hum <span class="op">+</span><span class="st"> </span>windspeed, <span class="dt">data =</span> bikeTrain, <span class="dt">method =</span> <span class="st">&quot;gbm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>), <span class="dt">trControl =</span> <span class="kw">trainControl</span>(<span class="dt">method =</span> <span class="st">&quot;repeatedcv&quot;</span>, <span class="dt">number =</span> <span class="dv">10</span>, <span class="dt">repeats =</span> <span class="dv">3</span>), <span class="dt">tuneLength =</span> <span class="dv">10</span>, <span class="dt">verbose =</span> <span class="ot">FALSE</span>)</span>
-<span id="cb27-4"><a href="#cb27-4"></a>predBoostedBike &lt;-<span class="st"> </span><span class="kw">predict</span>(boostedBike, <span class="dt">newdata =</span> <span class="kw">select</span>(bikeTest, <span class="op">-</span>cnt))</span>
-<span id="cb27-5"><a href="#cb27-5"></a>boostedRMSE &lt;-<span class="st"> </span><span class="kw">sqrt</span>(<span class="kw">mean</span>((predBoostedBike <span class="op">-</span><span class="st"> </span>bikeTest<span class="op">$</span>cnt)<span class="op">^</span><span class="dv">2</span>))</span>
-<span id="cb27-6"><a href="#cb27-6"></a><span class="kw">postResample</span>(predBoostedBike, bikeTest<span class="op">$</span>cnt)</span></code></pre></div>
-<pre><code>##       RMSE   Rsquared        MAE 
-## 49.8291978  0.9359198 30.1036107
-</code></pre>
+<p>A boosted tree is one of the ensemble learning methods, in which the tree grows sequentially. Each subsequent tree is combined into the previous model to produce a modified model. The predictions are updated as the tree grows.</p>
+<p>We again use <code>caret</code> package and set the method as <code>gbm</code>. We use repeated cross validation (<code>repeatedcv</code>) and set the <code>tuneLength</code> as 10 and let the model chooses the best model automatically. Then we use the model to predict <code>cnt</code> on the test data. Finally, we calculate RMSE to check the fit of the model.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="kw">modelLookup</span>(<span class="st">&quot;gbm&quot;</span>)</span>
+<span id="cb26-2"><a href="#cb26-2"></a></span>
+<span id="cb26-3"><a href="#cb26-3"></a>boostedBike &lt;-<span class="st"> </span><span class="kw">train</span>(cnt <span class="op">~</span><span class="st">  </span>season <span class="op">+</span><span class="st"> </span>yr <span class="op">+</span><span class="st"> </span>hr <span class="op">+</span><span class="st"> </span>weathersit <span class="op">+</span><span class="st"> </span>atemp <span class="op">+</span><span class="st"> </span>hum <span class="op">+</span><span class="st"> </span>windspeed, <span class="dt">data =</span> bikeTrain, <span class="dt">method =</span> <span class="st">&quot;gbm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>), <span class="dt">trControl =</span> <span class="kw">trainControl</span>(<span class="dt">method =</span> <span class="st">&quot;repeatedcv&quot;</span>, <span class="dt">number =</span> <span class="dv">10</span>, <span class="dt">repeats =</span> <span class="dv">3</span>), <span class="dt">tuneLength =</span> <span class="dv">10</span>, <span class="dt">verbose =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb26-4"><a href="#cb26-4"></a>predBoostedBike &lt;-<span class="st"> </span><span class="kw">predict</span>(boostedBike, <span class="dt">newdata =</span> <span class="kw">select</span>(bikeTest, <span class="op">-</span>cnt))</span>
+<span id="cb26-5"><a href="#cb26-5"></a>boostedResult &lt;-<span class="st"> </span><span class="kw">postResample</span>(predBoostedBike, bikeTest<span class="op">$</span>cnt)</span></code></pre></div>
 <h3 id="comparison">Comparison</h3>
-<p>We can put the RMSE from the two models together for comparison.</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>comparison &lt;-<span class="st"> </span><span class="kw">data.frame</span>(treeRMSE, boostedRMSE)</span>
-<span id="cb29-2"><a href="#cb29-2"></a><span class="kw">colnames</span>(comparison) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Regression Tree&quot;</span>, <span class="st">&quot;Boosted Tree&quot;</span>)</span>
-<span id="cb29-3"><a href="#cb29-3"></a><span class="kw">rownames</span>(comparison) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;RMSE&quot;</span>)</span>
-<span id="cb29-4"><a href="#cb29-4"></a>knitr<span class="op">::</span><span class="kw">kable</span>(comparison)</span></code></pre></div>
+<p>We can put the testing RMSE from the two models together for comparison.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>comparison &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">rbind</span>(<span class="kw">t</span>(treeResult), <span class="kw">t</span>(boostedResult)))</span>
+<span id="cb27-2"><a href="#cb27-2"></a><span class="kw">colnames</span>(comparison) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;RMSE&quot;</span>, <span class="st">&quot;Rsquared&quot;</span>, <span class="st">&quot;MAE&quot;</span>)</span>
+<span id="cb27-3"><a href="#cb27-3"></a><span class="kw">rownames</span>(comparison) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Regression Tree&quot;</span>, <span class="st">&quot;Boosted Tree&quot;</span>)</span>
+<span id="cb27-4"><a href="#cb27-4"></a>knitr<span class="op">::</span><span class="kw">kable</span>(comparison)</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
 <th align="left"></th>
-<th align="right">Regression Tree</th>
-<th align="right">Boosted Tree</th>
+<th align="right">RMSE</th>
+<th align="right">Rsquared</th>
+<th align="right">MAE</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">RMSE</td>
+<td align="left">Regression Tree</td>
 <td align="right">99.8865</td>
+<td align="right">0.7390699</td>
+<td align="right">69.43440</td>
+</tr>
+<tr class="even">
+<td align="left">Boosted Tree</td>
 <td align="right">49.8292</td>
+<td align="right">0.9359198</td>
+<td align="right">30.10361</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="co"># a function to generate the name of the best model</span></span>
-<span id="cb30-2"><a href="#cb30-2"></a>model &lt;-<span class="st"> </span><span class="cf">function</span>(x, y){</span>
-<span id="cb30-3"><a href="#cb30-3"></a>  <span class="cf">if</span> (x <span class="op">&gt;</span><span class="st"> </span>y) {</span>
-<span id="cb30-4"><a href="#cb30-4"></a>    final &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;boosted tree&quot;</span>)</span>
-<span id="cb30-5"><a href="#cb30-5"></a>  }</span>
-<span id="cb30-6"><a href="#cb30-6"></a>  <span class="cf">else</span> {</span>
-<span id="cb30-7"><a href="#cb30-7"></a>    final &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;regression tree&quot;</span>)</span>
-<span id="cb30-8"><a href="#cb30-8"></a>  }</span>
-<span id="cb30-9"><a href="#cb30-9"></a>  <span class="kw">return</span>(final)</span>
-<span id="cb30-10"><a href="#cb30-10"></a>}</span></code></pre></div>
-<p>From the output, we can conclude that boosted tree is the better model for Wednesday data.</p>
+<h3 id="final-model">Final Model</h3>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="co"># a function to generate the name of the best model</span></span>
+<span id="cb28-2"><a href="#cb28-2"></a>model &lt;-<span class="st"> </span><span class="cf">function</span>(x, y){</span>
+<span id="cb28-3"><a href="#cb28-3"></a>  xscore &lt;-<span class="st"> </span><span class="dv">0</span></span>
+<span id="cb28-4"><a href="#cb28-4"></a>  <span class="cf">if</span> (x[[<span class="dv">1</span>]] <span class="op">&lt;</span><span class="st"> </span>y[[<span class="dv">1</span>]]) {</span>
+<span id="cb28-5"><a href="#cb28-5"></a>    xscore =<span class="st"> </span>xscore <span class="op">+</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb28-6"><a href="#cb28-6"></a>  }</span>
+<span id="cb28-7"><a href="#cb28-7"></a>  <span class="cf">if</span> (x[[<span class="dv">2</span>]] <span class="op">&gt;</span><span class="st"> </span>y[[<span class="dv">2</span>]]){</span>
+<span id="cb28-8"><a href="#cb28-8"></a>    xscore =<span class="st"> </span>xscore <span class="op">+</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb28-9"><a href="#cb28-9"></a>  }</span>
+<span id="cb28-10"><a href="#cb28-10"></a>  <span class="cf">if</span> (x[[<span class="dv">3</span>]] <span class="op">&lt;</span><span class="st"> </span>y[[<span class="dv">3</span>]]){</span>
+<span id="cb28-11"><a href="#cb28-11"></a>    xscore =<span class="st"> </span>xscore <span class="op">+</span><span class="st"> </span><span class="dv">1</span></span>
+<span id="cb28-12"><a href="#cb28-12"></a>  }</span>
+<span id="cb28-13"><a href="#cb28-13"></a>  <span class="cf">if</span> (xscore <span class="op">==</span><span class="st"> </span><span class="dv">2</span> <span class="op">||</span><span class="st"> </span>xscore <span class="op">==</span><span class="st"> </span><span class="dv">3</span>){</span>
+<span id="cb28-14"><a href="#cb28-14"></a>    final &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;regression tree&quot;</span>)</span>
+<span id="cb28-15"><a href="#cb28-15"></a>  } <span class="cf">else</span> {</span>
+<span id="cb28-16"><a href="#cb28-16"></a>    final &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;boosted tree&quot;</span>)</span>
+<span id="cb28-17"><a href="#cb28-17"></a>  }</span>
+<span id="cb28-18"><a href="#cb28-18"></a>  <span class="kw">return</span>(final)</span>
+<span id="cb28-19"><a href="#cb28-19"></a>}</span>
+<span id="cb28-20"><a href="#cb28-20"></a><span class="co"># model(treeResult, boostedResult)</span></span></code></pre></div>
+<p>From the output, we can conclude that boosted tree is the better model for Wednesday data, because it has better performance in terms of RMSE, Rsquared, and MAE.</p>
 
 </body>
 </html>

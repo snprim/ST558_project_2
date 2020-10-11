@@ -14,6 +14,7 @@ Shih-Ni Prim
       - [Regression tree](#regression-tree)
       - [Boosted Tree](#boosted-tree)
       - [Comparison](#comparison)
+      - [Final Model](#final-model)
 
 ## Introduction
 
@@ -215,6 +216,11 @@ data.
 
 ### Regression tree
 
+A regression tree is one of the tree based methods for supervised
+learning with the goal of predicting a continuous response. It splits up
+predictor space into different regions, and the prediction of each
+region is often the mean of observations in that region.
+
 For regression tree, we use the `caret` package and apply the
 leave-one-out cross validation method (thus the argument `method =
 "LOOCV"`). We set the `tuneLength` as 10 and let the model chooses the
@@ -227,61 +233,71 @@ modelLookup("rpart")
 bikeTree <- train(cnt ~ ., data = bikeTrain, method = "rpart", trControl = trainControl(method = "LOOCV"), tuneLength = 10)
 
 predTree <- predict(bikeTree, newdata = bikeTest)
-treeRMSE <- sqrt(mean((predTree - bikeTest$cnt)^2))
-postResample(predTree, bikeTest$cnt)
+treeResult <- postResample(predTree, bikeTest$cnt)
 ```
-
-    ##       RMSE   Rsquared        MAE 
-    ## 93.2638892  0.7486153 66.2261112
 
 ### Boosted Tree
 
-Now we use one of the ensemble methods, boosted tree. We again use
-`caret` package and set the method as `gbm`. We use repeated cross
-validation (`repeatedcv`) and set the `tuneLength` as 10 and let the
-model chooses the best model automatically. Then we use the model to
-predict `cnt` on the test data. Finally, we calculate RMSE to check the
-fit of the model.
+A boosted tree is one of the ensemble learning methods, in which the
+tree grows sequentially. Each subsequent tree is combined into the
+previous model to produce a modified model. The predictions are updated
+as the tree grows.
+
+We again use `caret` package and set the method as `gbm`. We use
+repeated cross validation (`repeatedcv`) and set the `tuneLength` as 10
+and let the model chooses the best model automatically. Then we use the
+model to predict `cnt` on the test data. Finally, we calculate RMSE to
+check the fit of the model.
 
 ``` r
 modelLookup("gbm")
 
 boostedBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "gbm", preProcess = c("center", "scale"), trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3), tuneLength = 10, verbose = FALSE)
 predBoostedBike <- predict(boostedBike, newdata = select(bikeTest, -cnt))
-boostedRMSE <- sqrt(mean((predBoostedBike - bikeTest$cnt)^2))
-postResample(predBoostedBike, bikeTest$cnt)
+boostedResult <- postResample(predBoostedBike, bikeTest$cnt)
 ```
-
-    ##       RMSE   Rsquared        MAE 
-    ## 50.4637602  0.9263942 29.0241290
 
 ### Comparison
 
-We can put the RMSE from the two models together for comparison.
+We can put the testing RMSE from the two models together for comparison.
 
 ``` r
-comparison <- data.frame(treeRMSE, boostedRMSE)
-colnames(comparison) <- c("Regression Tree", "Boosted Tree")
-rownames(comparison) <- c("RMSE")
+comparison <- data.frame(rbind(t(treeResult), t(boostedResult)))
+colnames(comparison) <- c("RMSE", "Rsquared", "MAE")
+rownames(comparison) <- c("Regression Tree", "Boosted Tree")
 knitr::kable(comparison)
 ```
 
-|      | Regression Tree | Boosted Tree |
-| :--- | --------------: | -----------: |
-| RMSE |        93.26389 |     50.46376 |
+|                 |     RMSE |  Rsquared |      MAE |
+| :-------------- | -------: | --------: | -------: |
+| Regression Tree | 93.26389 | 0.7486153 | 66.22611 |
+| Boosted Tree    | 50.46376 | 0.9263942 | 29.02413 |
+
+### Final Model
 
 ``` r
 # a function to generate the name of the best model
 model <- function(x, y){
-  if (x > y) {
-    final <- c("boosted tree")
+  xscore <- 0
+  if (x[[1]] < y[[1]]) {
+    xscore = xscore + 1
   }
-  else {
+  if (x[[2]] > y[[2]]){
+    xscore = xscore + 1
+  }
+  if (x[[3]] < y[[3]]){
+    xscore = xscore + 1
+  }
+  if (xscore == 2 || xscore == 3){
     final <- c("regression tree")
+  } else {
+    final <- c("boosted tree")
   }
   return(final)
 }
+# model(treeResult, boostedResult)
 ```
 
 From the output, we can conclude that boosted tree is the better model
-for Thursday data.
+for Thursday data, because it has better performance in terms of RMSE,
+Rsquared, and MAE.
