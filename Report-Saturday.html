@@ -601,7 +601,7 @@ body {
 <body>
 
 <h1 id="saturday">Saturday</h1>
-<p>Shih-Ni Prim 2020-10-07</p>
+<p>Shih-Ni Prim 2020-10-10</p>
 <ul>
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#setting-the-value-for-the-parameter">Setting the Value for the Parameter</a></li>
@@ -616,7 +616,7 @@ body {
 </ul></li>
 </ul>
 <h2 id="introduction">Introduction</h2>
-<p>Now we take a look at Saturday’s analysis. This dataset contains information about bike sharing. We have a variety of predictors, including hours, temperature, humidity, weekday, holiday/workday or not, etc. We will use the variable <code>cnt</code> as the response variable.</p>
+<p>Now we take a look at Saturday’s analysis. This dataset contains information about <a href="https://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset">bike sharing</a>. We have a variety of predictors, including hours, temperature, humidity, weekday, holiday/workday or not, etc. In our analysis, We will use two statistical learning models–regression tree and boosted tree–to predict the count of total rental bikes <code>cnt</code>.</p>
 <h2 id="setting-the-value-for-the-parameter">Setting the Value for the Parameter</h2>
 <p>Since the current analysis is on Saturday, we first find the corresponding value for it.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">set.seed</span>(<span class="dv">7777</span>)</span>
@@ -651,11 +651,11 @@ body {
 ##   cnt = col_double()
 ## )
 </code></pre>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">head</span>(bikes)</span>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># head(bikes)</span></span>
 <span id="cb5-2"><a href="#cb5-2"></a>analysis &lt;-<span class="st"> </span>bikes <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(weekday <span class="op">==</span><span class="st"> </span>weekdayNum) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>casual, <span class="op">-</span>registered) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(dteday, weekday, <span class="kw">everything</span>()) </span>
-<span id="cb5-3"><a href="#cb5-3"></a><span class="kw">head</span>(analysis)</span></code></pre></div>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="co"># head(analysis)</span></span></code></pre></div>
 <h2 id="splitting-data">Splitting Data</h2>
-<p>We first split up the data into two sets: training and test sets. The training set has about 70% of the data, and the test set has about 30%. Splitting up the data is important, because we want to test the model on a set that is not used in training. Otherwise, we risk overfitting.</p>
+<p>We first split up the data into two sets: training and test sets. The training set has about 70% of the data, and the test set has about 30%. Splitting up the data is important, because we want to test the model on a set that is not used in training, otherwise we risk overfitting.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>train &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(analysis), <span class="dt">size =</span> <span class="kw">nrow</span>(analysis)<span class="op">*</span><span class="fl">0.7</span>)</span>
 <span id="cb6-2"><a href="#cb6-2"></a>test &lt;-<span class="st"> </span><span class="kw">setdiff</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(analysis), train)</span>
 <span id="cb6-3"><a href="#cb6-3"></a></span>
@@ -671,20 +671,20 @@ body {
 ##  Mean   :2011-12-26   Mean   :6   Mean   : 8540   Mean   :2.464   Mean   :0.4898  
 ##  3rd Qu.:2012-06-23   3rd Qu.:6   3rd Qu.:12834   3rd Qu.:3.000   3rd Qu.:1.0000  
 ##  Max.   :2012-12-29   Max.   :6   Max.   :17331   Max.   :4.000   Max.   :1.0000  
-##       mnth             hr           holiday    workingday   weathersit   
-##  Min.   : 1.00   Min.   : 0.00   Min.   :0   Min.   :0    Min.   :1.000  
-##  1st Qu.: 3.00   1st Qu.: 6.00   1st Qu.:0   1st Qu.:0    1st Qu.:1.000  
-##  Median : 6.00   Median :12.00   Median :0   Median :0    Median :1.000  
-##  Mean   : 6.48   Mean   :11.67   Mean   :0   Mean   :0    Mean   :1.409  
-##  3rd Qu.: 9.00   3rd Qu.:18.00   3rd Qu.:0   3rd Qu.:0    3rd Qu.:2.000  
-##  Max.   :12.00   Max.   :23.00   Max.   :0   Max.   :0    Max.   :3.000  
-##       temp            atemp             hum           windspeed           cnt       
-##  Min.   :0.0200   Min.   :0.0000   Min.   :0.1200   Min.   :0.0000   Min.   :  1.0  
-##  1st Qu.:0.3200   1st Qu.:0.3182   1st Qu.:0.4500   1st Qu.:0.1045   1st Qu.: 43.0  
-##  Median :0.4800   Median :0.4697   Median :0.6200   Median :0.1940   Median :133.0  
-##  Mean   :0.4848   Mean   :0.4646   Mean   :0.6197   Mean   :0.1951   Mean   :190.8  
-##  3rd Qu.:0.6400   3rd Qu.:0.6212   3rd Qu.:0.7900   3rd Qu.:0.2836   3rd Qu.:300.0  
-##  Max.   :1.0000   Max.   :0.8939   Max.   :1.0000   Max.   :0.8358   Max.   :783.0
+##       mnth             hr           holiday    workingday   weathersit         temp       
+##  Min.   : 1.00   Min.   : 0.00   Min.   :0   Min.   :0    Min.   :1.000   Min.   :0.0200  
+##  1st Qu.: 3.00   1st Qu.: 6.00   1st Qu.:0   1st Qu.:0    1st Qu.:1.000   1st Qu.:0.3200  
+##  Median : 6.00   Median :12.00   Median :0   Median :0    Median :1.000   Median :0.4800  
+##  Mean   : 6.48   Mean   :11.67   Mean   :0   Mean   :0    Mean   :1.409   Mean   :0.4848  
+##  3rd Qu.: 9.00   3rd Qu.:18.00   3rd Qu.:0   3rd Qu.:0    3rd Qu.:2.000   3rd Qu.:0.6400  
+##  Max.   :12.00   Max.   :23.00   Max.   :0   Max.   :0    Max.   :3.000   Max.   :1.0000  
+##      atemp             hum           windspeed           cnt       
+##  Min.   :0.0000   Min.   :0.1200   Min.   :0.0000   Min.   :  1.0  
+##  1st Qu.:0.3182   1st Qu.:0.4500   1st Qu.:0.1045   1st Qu.: 43.0  
+##  Median :0.4697   Median :0.6200   Median :0.1940   Median :133.0  
+##  Mean   :0.4646   Mean   :0.6197   Mean   :0.1951   Mean   :190.8  
+##  3rd Qu.:0.6212   3rd Qu.:0.7900   3rd Qu.:0.2836   3rd Qu.:300.0  
+##  Max.   :0.8939   Max.   :1.0000   Max.   :0.8358   Max.   :783.0
 </code></pre>
 <p>Below we look at three plots. The first plot shows the histogram of bike rentals (<code>cnt</code>) on Saturday. The second plot shows that <code>cnt</code> does vary in different hours. The third plot shows that <code>cnt</code> varies between the two years. So we know we should keep <code>hr</code> and <code>yr</code> as predictors.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">ggplot</span>(bikeTrain, <span class="dt">mapping =</span> <span class="kw">aes</span>(<span class="dt">x =</span> cnt)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_histogram</span>()</span></code></pre></div>
@@ -710,20 +710,20 @@ body {
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="kw">cor</span>(bikeTrain<span class="op">$</span>temp, bikeTrain<span class="op">$</span>atemp)</span></code></pre></div>
 <pre><code>## [1] 0.9922486
 </code></pre>
-<p>The variance of <code>workingday</code> and <code>holiday</code> is 0 or too small.</p>
+<p>The variance of <code>workingday</code> and <code>holiday</code> are too small and probably not good predictors.</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="kw">var</span>(bikeTrain<span class="op">$</span>holiday)</span></code></pre></div>
 <pre><code>## [1] 0
 </code></pre>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="kw">var</span>(bikeTrain<span class="op">$</span>workingday)</span></code></pre></div>
 <pre><code>## [1] 0
 </code></pre>
-<p>Also, <code>instant</code> and <code>dteday</code> are for record-keeping. Thus, we decide to keep these as the predictors: <code>season</code>, <code>yr</code>, <code>hr</code>, <code>weathersit</code>, <code>atemp</code>, <code>hum</code>, and <code>windspeed</code>.</p>
+<p>Also, <code>instant</code> and <code>dteday</code> are for record-keeping. Thus, we decide to keep the following variables as the predictors: <code>season</code>, <code>yr</code>, <code>hr</code>, <code>weathersit</code>, <code>atemp</code>, <code>hum</code>, and <code>windspeed</code>.</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>bikeTrain &lt;-<span class="st"> </span><span class="kw">select</span>(bikeTrain, season, yr, hr, weathersit, atemp, hum, windspeed, cnt)</span>
 <span id="cb24-2"><a href="#cb24-2"></a>bikeTest &lt;-<span class="st"> </span><span class="kw">select</span>(bikeTest, season, yr, hr, weathersit, atemp, hum, windspeed, cnt)</span></code></pre></div>
 <h2 id="fitting-models">Fitting models</h2>
-<p>Now we have a training set and chose the predictors, we can use two models–regression tree and boosted tree–to fit the training data.</p>
+<p>Now we have a final training set and have chosen the predictors, we can use two models–regression tree and boosted tree–to fit the training data.</p>
 <h3 id="regression-tree">Regression tree</h3>
-<p>For regression tree, we use the <code>caret</code> package and apply the leave-one-out cross validation method (thus the argument <code>method = &quot;LOOCV&quot;</code>). We set the <code>tuneLength</code> as 10 and let the model chooses the best model automatically. Then we use the model to predict <code>cnt</code> on the test data. Finally, we calculate RMSE to see the fit of the model and for comparison.</p>
+<p>For regression tree, we use the <code>caret</code> package and apply the leave-one-out cross validation method (thus the argument <code>method = &quot;LOOCV&quot;</code>). We set the <code>tuneLength</code> as 10 and let the model chooses the best model automatically. Then we use the model to predict <code>cnt</code> on the test data. Finally, we calculate RMSE to check the fit of the model.</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw">modelLookup</span>(<span class="st">&quot;rpart&quot;</span>)</span>
 <span id="cb25-2"><a href="#cb25-2"></a></span>
 <span id="cb25-3"><a href="#cb25-3"></a>bikeTree &lt;-<span class="st"> </span><span class="kw">train</span>(cnt <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> bikeTrain, <span class="dt">method =</span> <span class="st">&quot;rpart&quot;</span>, <span class="dt">trControl =</span> <span class="kw">trainControl</span>(<span class="dt">method =</span> <span class="st">&quot;LOOCV&quot;</span>), <span class="dt">tuneLength =</span> <span class="dv">10</span>)</span>
@@ -735,7 +735,7 @@ body {
 ## 76.5578387  0.8213449 57.9135731
 </code></pre>
 <h3 id="boosted-tree">Boosted Tree</h3>
-<p>Now we use one of the ensemble method, boosted tree. We again use <code>caret</code> package and set the method as <code>gbm</code>. We use repeated cross validation (<code>repeatedcv</code>) and again set the <code>tuneLength</code> as 10 and let the model chooses the best model automatically. Then we use the model to predict <code>cnt</code> on the test data. Finally, we calculate RMSE to see the fit of the model and for comparison.</p>
+<p>Now we use one of the ensemble methods, boosted tree. We again use <code>caret</code> package and set the method as <code>gbm</code>. We use repeated cross validation (<code>repeatedcv</code>) and set the <code>tuneLength</code> as 10 and let the model chooses the best model automatically. Then we use the model to predict <code>cnt</code> on the test data. Finally, we calculate RMSE to check the fit of the model.</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="kw">modelLookup</span>(<span class="st">&quot;gbm&quot;</span>)</span>
 <span id="cb27-2"><a href="#cb27-2"></a></span>
 <span id="cb27-3"><a href="#cb27-3"></a>boostedBike &lt;-<span class="st"> </span><span class="kw">train</span>(cnt <span class="op">~</span><span class="st">  </span>season <span class="op">+</span><span class="st"> </span>yr <span class="op">+</span><span class="st"> </span>hr <span class="op">+</span><span class="st"> </span>weathersit <span class="op">+</span><span class="st"> </span>atemp <span class="op">+</span><span class="st"> </span>hum <span class="op">+</span><span class="st"> </span>windspeed, <span class="dt">data =</span> bikeTrain, <span class="dt">method =</span> <span class="st">&quot;gbm&quot;</span>, <span class="dt">preProcess =</span> <span class="kw">c</span>(<span class="st">&quot;center&quot;</span>, <span class="st">&quot;scale&quot;</span>), <span class="dt">trControl =</span> <span class="kw">trainControl</span>(<span class="dt">method =</span> <span class="st">&quot;repeatedcv&quot;</span>, <span class="dt">number =</span> <span class="dv">10</span>, <span class="dt">repeats =</span> <span class="dv">3</span>), <span class="dt">tuneLength =</span> <span class="dv">10</span>, <span class="dt">verbose =</span> <span class="ot">FALSE</span>)</span>

@@ -1,7 +1,7 @@
 Tuesday
 ================
 Shih-Ni Prim
-2020-10-07
+2020-10-10
 
   - [Introduction](#introduction)
   - [Setting the Value for the
@@ -18,9 +18,12 @@ Shih-Ni Prim
 ## Introduction
 
 Now we take a look at Tuesday’s analysis. This dataset contains
-information about bike sharing. We have a variety of predictors,
-including hours, temperature, humidity, weekday, holiday/workday or not,
-etc. We will use the variable `cnt` as the response variable.
+information about [bike
+sharing](https://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset).
+We have a variety of predictors, including hours, temperature, humidity,
+weekday, holiday/workday or not, etc. In our analysis, We will use two
+statistical learning models–regression tree and boosted tree–to predict
+the count of total rental bikes `cnt`.
 
 ## Setting the Value for the Parameter
 
@@ -73,9 +76,9 @@ bikes <- read_csv("../Bike-Sharing-Dataset/hour.csv")
     ## )
 
 ``` r
-head(bikes)
+# head(bikes)
 analysis <- bikes %>% filter(weekday == weekdayNum) %>% select(-casual, -registered) %>% select(dteday, weekday, everything()) 
-head(analysis)
+# head(analysis)
 ```
 
 ## Splitting Data
@@ -83,7 +86,7 @@ head(analysis)
 We first split up the data into two sets: training and test sets. The
 training set has about 70% of the data, and the test set has about 30%.
 Splitting up the data is important, because we want to test the model on
-a set that is not used in training. Otherwise, we risk overfitting.
+a set that is not used in training, otherwise we risk overfitting.
 
 ``` r
 train <- sample(1:nrow(analysis), size = nrow(analysis)*0.7)
@@ -180,7 +183,8 @@ cor(bikeTrain$temp, bikeTrain$atemp)
 
     ## [1] 0.9925321
 
-The variance of `workingday` and `holiday` is 0 or too small.
+The variance of `workingday` and `holiday` are too small and probably
+not good predictors.
 
 ``` r
 var(bikeTrain$holiday)
@@ -195,8 +199,8 @@ var(bikeTrain$workingday)
     ## [1] 0.008091986
 
 Also, `instant` and `dteday` are for record-keeping. Thus, we decide to
-keep these as the predictors: `season`, `yr`, `hr`, `weathersit`,
-`atemp`, `hum`, and `windspeed`.
+keep the following variables as the predictors: `season`, `yr`, `hr`,
+`weathersit`, `atemp`, `hum`, and `windspeed`.
 
 ``` r
 bikeTrain <- select(bikeTrain, season, yr, hr, weathersit, atemp, hum, windspeed, cnt)
@@ -205,8 +209,9 @@ bikeTest <- select(bikeTest, season, yr, hr, weathersit, atemp, hum, windspeed, 
 
 ## Fitting models
 
-Now we have a training set and chose the predictors, we can use two
-models–regression tree and boosted tree–to fit the training data.
+Now we have a final training set and have chosen the predictors, we can
+use two models–regression tree and boosted tree–to fit the training
+data.
 
 ### Regression tree
 
@@ -214,8 +219,7 @@ For regression tree, we use the `caret` package and apply the
 leave-one-out cross validation method (thus the argument `method =
 "LOOCV"`). We set the `tuneLength` as 10 and let the model chooses the
 best model automatically. Then we use the model to predict `cnt` on the
-test data. Finally, we calculate RMSE to see the fit of the model and
-for comparison.
+test data. Finally, we calculate RMSE to check the fit of the model.
 
 ``` r
 modelLookup("rpart")
@@ -232,12 +236,12 @@ postResample(predTree, bikeTest$cnt)
 
 ### Boosted Tree
 
-Now we use one of the ensemble method, boosted tree. We again use
+Now we use one of the ensemble methods, boosted tree. We again use
 `caret` package and set the method as `gbm`. We use repeated cross
-validation (`repeatedcv`) and again set the `tuneLength` as 10 and let
-the model chooses the best model automatically. Then we use the model to
-predict `cnt` on the test data. Finally, we calculate RMSE to see the
-fit of the model and for comparison.
+validation (`repeatedcv`) and set the `tuneLength` as 10 and let the
+model chooses the best model automatically. Then we use the model to
+predict `cnt` on the test data. Finally, we calculate RMSE to check the
+fit of the model.
 
 ``` r
 modelLookup("gbm")

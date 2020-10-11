@@ -1,7 +1,7 @@
 Saturday
 ================
 Shih-Ni Prim
-2020-10-07
+2020-10-10
 
   - [Introduction](#introduction)
   - [Setting the Value for the
@@ -18,9 +18,12 @@ Shih-Ni Prim
 ## Introduction
 
 Now we take a look at Saturday’s analysis. This dataset contains
-information about bike sharing. We have a variety of predictors,
-including hours, temperature, humidity, weekday, holiday/workday or not,
-etc. We will use the variable `cnt` as the response variable.
+information about [bike
+sharing](https://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset).
+We have a variety of predictors, including hours, temperature, humidity,
+weekday, holiday/workday or not, etc. In our analysis, We will use two
+statistical learning models–regression tree and boosted tree–to predict
+the count of total rental bikes `cnt`.
 
 ## Setting the Value for the Parameter
 
@@ -73,9 +76,9 @@ bikes <- read_csv("../Bike-Sharing-Dataset/hour.csv")
     ## )
 
 ``` r
-head(bikes)
+# head(bikes)
 analysis <- bikes %>% filter(weekday == weekdayNum) %>% select(-casual, -registered) %>% select(dteday, weekday, everything()) 
-head(analysis)
+# head(analysis)
 ```
 
 ## Splitting Data
@@ -83,7 +86,7 @@ head(analysis)
 We first split up the data into two sets: training and test sets. The
 training set has about 70% of the data, and the test set has about 30%.
 Splitting up the data is important, because we want to test the model on
-a set that is not used in training. Otherwise, we risk overfitting.
+a set that is not used in training, otherwise we risk overfitting.
 
 ``` r
 train <- sample(1:nrow(analysis), size = nrow(analysis)*0.7)
@@ -109,20 +112,20 @@ summary(bikeTrain)
     ##  Mean   :2011-12-26   Mean   :6   Mean   : 8540   Mean   :2.464   Mean   :0.4898  
     ##  3rd Qu.:2012-06-23   3rd Qu.:6   3rd Qu.:12834   3rd Qu.:3.000   3rd Qu.:1.0000  
     ##  Max.   :2012-12-29   Max.   :6   Max.   :17331   Max.   :4.000   Max.   :1.0000  
-    ##       mnth             hr           holiday    workingday   weathersit   
-    ##  Min.   : 1.00   Min.   : 0.00   Min.   :0   Min.   :0    Min.   :1.000  
-    ##  1st Qu.: 3.00   1st Qu.: 6.00   1st Qu.:0   1st Qu.:0    1st Qu.:1.000  
-    ##  Median : 6.00   Median :12.00   Median :0   Median :0    Median :1.000  
-    ##  Mean   : 6.48   Mean   :11.67   Mean   :0   Mean   :0    Mean   :1.409  
-    ##  3rd Qu.: 9.00   3rd Qu.:18.00   3rd Qu.:0   3rd Qu.:0    3rd Qu.:2.000  
-    ##  Max.   :12.00   Max.   :23.00   Max.   :0   Max.   :0    Max.   :3.000  
-    ##       temp            atemp             hum           windspeed           cnt       
-    ##  Min.   :0.0200   Min.   :0.0000   Min.   :0.1200   Min.   :0.0000   Min.   :  1.0  
-    ##  1st Qu.:0.3200   1st Qu.:0.3182   1st Qu.:0.4500   1st Qu.:0.1045   1st Qu.: 43.0  
-    ##  Median :0.4800   Median :0.4697   Median :0.6200   Median :0.1940   Median :133.0  
-    ##  Mean   :0.4848   Mean   :0.4646   Mean   :0.6197   Mean   :0.1951   Mean   :190.8  
-    ##  3rd Qu.:0.6400   3rd Qu.:0.6212   3rd Qu.:0.7900   3rd Qu.:0.2836   3rd Qu.:300.0  
-    ##  Max.   :1.0000   Max.   :0.8939   Max.   :1.0000   Max.   :0.8358   Max.   :783.0
+    ##       mnth             hr           holiday    workingday   weathersit         temp       
+    ##  Min.   : 1.00   Min.   : 0.00   Min.   :0   Min.   :0    Min.   :1.000   Min.   :0.0200  
+    ##  1st Qu.: 3.00   1st Qu.: 6.00   1st Qu.:0   1st Qu.:0    1st Qu.:1.000   1st Qu.:0.3200  
+    ##  Median : 6.00   Median :12.00   Median :0   Median :0    Median :1.000   Median :0.4800  
+    ##  Mean   : 6.48   Mean   :11.67   Mean   :0   Mean   :0    Mean   :1.409   Mean   :0.4848  
+    ##  3rd Qu.: 9.00   3rd Qu.:18.00   3rd Qu.:0   3rd Qu.:0    3rd Qu.:2.000   3rd Qu.:0.6400  
+    ##  Max.   :12.00   Max.   :23.00   Max.   :0   Max.   :0    Max.   :3.000   Max.   :1.0000  
+    ##      atemp             hum           windspeed           cnt       
+    ##  Min.   :0.0000   Min.   :0.1200   Min.   :0.0000   Min.   :  1.0  
+    ##  1st Qu.:0.3182   1st Qu.:0.4500   1st Qu.:0.1045   1st Qu.: 43.0  
+    ##  Median :0.4697   Median :0.6200   Median :0.1940   Median :133.0  
+    ##  Mean   :0.4646   Mean   :0.6197   Mean   :0.1951   Mean   :190.8  
+    ##  3rd Qu.:0.6212   3rd Qu.:0.7900   3rd Qu.:0.2836   3rd Qu.:300.0  
+    ##  Max.   :0.8939   Max.   :1.0000   Max.   :0.8358   Max.   :783.0
 
 Below we look at three plots. The first plot shows the histogram of bike
 rentals (`cnt`) on Saturday. The second plot shows that `cnt` does vary
@@ -182,7 +185,8 @@ cor(bikeTrain$temp, bikeTrain$atemp)
 
     ## [1] 0.9922486
 
-The variance of `workingday` and `holiday` is 0 or too small.
+The variance of `workingday` and `holiday` are too small and probably
+not good predictors.
 
 ``` r
 var(bikeTrain$holiday)
@@ -197,8 +201,8 @@ var(bikeTrain$workingday)
     ## [1] 0
 
 Also, `instant` and `dteday` are for record-keeping. Thus, we decide to
-keep these as the predictors: `season`, `yr`, `hr`, `weathersit`,
-`atemp`, `hum`, and `windspeed`.
+keep the following variables as the predictors: `season`, `yr`, `hr`,
+`weathersit`, `atemp`, `hum`, and `windspeed`.
 
 ``` r
 bikeTrain <- select(bikeTrain, season, yr, hr, weathersit, atemp, hum, windspeed, cnt)
@@ -207,8 +211,9 @@ bikeTest <- select(bikeTest, season, yr, hr, weathersit, atemp, hum, windspeed, 
 
 ## Fitting models
 
-Now we have a training set and chose the predictors, we can use two
-models–regression tree and boosted tree–to fit the training data.
+Now we have a final training set and have chosen the predictors, we can
+use two models–regression tree and boosted tree–to fit the training
+data.
 
 ### Regression tree
 
@@ -216,8 +221,7 @@ For regression tree, we use the `caret` package and apply the
 leave-one-out cross validation method (thus the argument `method =
 "LOOCV"`). We set the `tuneLength` as 10 and let the model chooses the
 best model automatically. Then we use the model to predict `cnt` on the
-test data. Finally, we calculate RMSE to see the fit of the model and
-for comparison.
+test data. Finally, we calculate RMSE to check the fit of the model.
 
 ``` r
 modelLookup("rpart")
@@ -234,12 +238,12 @@ postResample(predTree, bikeTest$cnt)
 
 ### Boosted Tree
 
-Now we use one of the ensemble method, boosted tree. We again use
+Now we use one of the ensemble methods, boosted tree. We again use
 `caret` package and set the method as `gbm`. We use repeated cross
-validation (`repeatedcv`) and again set the `tuneLength` as 10 and let
-the model chooses the best model automatically. Then we use the model to
-predict `cnt` on the test data. Finally, we calculate RMSE to see the
-fit of the model and for comparison.
+validation (`repeatedcv`) and set the `tuneLength` as 10 and let the
+model chooses the best model automatically. Then we use the model to
+predict `cnt` on the test data. Finally, we calculate RMSE to check the
+fit of the model.
 
 ``` r
 modelLookup("gbm")
