@@ -1,7 +1,7 @@
 Saturday
 ================
 Shih-Ni Prim
-2020-10-10
+2020-10-11
 
   - [Introduction](#introduction)
   - [Setting the Value for the
@@ -176,8 +176,6 @@ cor(bikeTrain$season, bikeTrain$mnth)
 cor(bikeTrain$holiday, bikeTrain$workingday)
 ```
 
-    ## Warning in cor(bikeTrain$holiday, bikeTrain$workingday): the standard deviation is zero
-
     ## [1] NA
 
 ``` r
@@ -226,14 +224,52 @@ region is often the mean of observations in that region.
 For regression tree, we use the `caret` package and apply the
 leave-one-out cross validation method (thus the argument `method =
 "LOOCV"`). We set the `tuneLength` as 10 and let the model chooses the
-best model automatically. Then we use the model to predict `cnt` on the
-test data. Finally, we calculate RMSE to check the fit of the model.
+best model automatically. Below we can see the resulting RMSE, Rsquared,
+and MAE of different cp as well as a plot that visualizes this
+information.
+
+Finally we use the model to predict `cnt` on the test data and calculate
+RMSE to check the fit of the model.
 
 ``` r
 modelLookup("rpart")
 
 bikeTree <- train(cnt ~ ., data = bikeTrain, method = "rpart", trControl = trainControl(method = "LOOCV"), tuneLength = 10)
+bikeTree
+```
 
+    ## CART 
+    ## 
+    ## 1758 samples
+    ##    7 predictor
+    ## 
+    ## No pre-processing
+    ## Resampling: Leave-One-Out Cross-Validation 
+    ## Summary of sample sizes: 1757, 1757, 1757, 1757, 1757, 1757, ... 
+    ## Resampling results across tuning parameters:
+    ## 
+    ##   cp           RMSE       Rsquared     MAE      
+    ##   0.007040770   75.07932  0.824945618   56.88111
+    ##   0.007904336   78.97136  0.806597511   59.27433
+    ##   0.008484117   78.81065  0.807123689   59.42330
+    ##   0.011555841   80.83218  0.797371170   60.48926
+    ##   0.017242508   84.55271  0.778297129   62.60730
+    ##   0.022968387   97.75367  0.703617888   73.22815
+    ##   0.066900261  110.62617  0.621492097   81.23792
+    ##   0.088842295  124.78729  0.524106452   92.11094
+    ##   0.197480370  157.58921  0.262023117  122.78626
+    ##   0.370550844  187.30826  0.000360873  168.91480
+    ## 
+    ## RMSE was used to select the optimal model using the smallest value.
+    ## The final value used for the model was cp = 0.00704077.
+
+``` r
+plot(bikeTree)
+```
+
+![](Report-Saturday_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
 predTree <- predict(bikeTree, newdata = bikeTest)
 treeResult <- postResample(predTree, bikeTest$cnt)
 ```
@@ -247,14 +283,29 @@ as the tree grows.
 
 We again use `caret` package and set the method as `gbm`. We use
 repeated cross validation (`repeatedcv`) and set the `tuneLength` as 10
-and let the model chooses the best model automatically. Then we use the
-model to predict `cnt` on the test data. Finally, we calculate RMSE to
-check the fit of the model.
+and let the model chooses the best model automatically. We can then see
+the importance of each variable and a plot that shows how RMSE changes
+with different numbers of boosting iterations and tree depths.
+
+Finally, we use the model to predict `cnt` on the test data and
+calculate RMSE to check the fit of the model.
 
 ``` r
 modelLookup("gbm")
 
 boostedBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "gbm", preProcess = c("center", "scale"), trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3), tuneLength = 10, verbose = FALSE)
+summary(boostedBike)
+```
+
+![](Report-Saturday_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+``` r
+plot(boostedBike)
+```
+
+![](Report-Saturday_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
+
+``` r
 predBoostedBike <- predict(boostedBike, newdata = select(bikeTest, -cnt))
 boostedResult <- postResample(predBoostedBike, bikeTest$cnt)
 ```
@@ -300,6 +351,6 @@ model <- function(x, y){
 # model(treeResult, boostedResult)
 ```
 
-From the output, we can conclude that boosted tree is the better model
-for Saturday data, because it has better performance in terms of RMSE,
-Rsquared, and MAE.
+From the output, we can conclude that the boosted tree is the better
+model for Saturday data, because it has better performance in terms of
+RMSE, Rsquared, and MAE.
