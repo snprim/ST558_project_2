@@ -1,7 +1,7 @@
 Saturday
 ================
 Shih-Ni Prim
-2020-10-11
+2020-10-14
 
   - [Introduction](#introduction)
   - [Setting the Value for the
@@ -113,20 +113,20 @@ summary(bikeTrain)
     ##  Mean   :2011-12-26   Mean   :6   Mean   : 8540   Mean   :2.464   Mean   :0.4898  
     ##  3rd Qu.:2012-06-23   3rd Qu.:6   3rd Qu.:12834   3rd Qu.:3.000   3rd Qu.:1.0000  
     ##  Max.   :2012-12-29   Max.   :6   Max.   :17331   Max.   :4.000   Max.   :1.0000  
-    ##       mnth             hr           holiday    workingday   weathersit         temp       
-    ##  Min.   : 1.00   Min.   : 0.00   Min.   :0   Min.   :0    Min.   :1.000   Min.   :0.0200  
-    ##  1st Qu.: 3.00   1st Qu.: 6.00   1st Qu.:0   1st Qu.:0    1st Qu.:1.000   1st Qu.:0.3200  
-    ##  Median : 6.00   Median :12.00   Median :0   Median :0    Median :1.000   Median :0.4800  
-    ##  Mean   : 6.48   Mean   :11.67   Mean   :0   Mean   :0    Mean   :1.409   Mean   :0.4848  
-    ##  3rd Qu.: 9.00   3rd Qu.:18.00   3rd Qu.:0   3rd Qu.:0    3rd Qu.:2.000   3rd Qu.:0.6400  
-    ##  Max.   :12.00   Max.   :23.00   Max.   :0   Max.   :0    Max.   :3.000   Max.   :1.0000  
-    ##      atemp             hum           windspeed           cnt       
-    ##  Min.   :0.0000   Min.   :0.1200   Min.   :0.0000   Min.   :  1.0  
-    ##  1st Qu.:0.3182   1st Qu.:0.4500   1st Qu.:0.1045   1st Qu.: 43.0  
-    ##  Median :0.4697   Median :0.6200   Median :0.1940   Median :133.0  
-    ##  Mean   :0.4646   Mean   :0.6197   Mean   :0.1951   Mean   :190.8  
-    ##  3rd Qu.:0.6212   3rd Qu.:0.7900   3rd Qu.:0.2836   3rd Qu.:300.0  
-    ##  Max.   :0.8939   Max.   :1.0000   Max.   :0.8358   Max.   :783.0
+    ##       mnth             hr           holiday    workingday   weathersit   
+    ##  Min.   : 1.00   Min.   : 0.00   Min.   :0   Min.   :0    Min.   :1.000  
+    ##  1st Qu.: 3.00   1st Qu.: 6.00   1st Qu.:0   1st Qu.:0    1st Qu.:1.000  
+    ##  Median : 6.00   Median :12.00   Median :0   Median :0    Median :1.000  
+    ##  Mean   : 6.48   Mean   :11.67   Mean   :0   Mean   :0    Mean   :1.409  
+    ##  3rd Qu.: 9.00   3rd Qu.:18.00   3rd Qu.:0   3rd Qu.:0    3rd Qu.:2.000  
+    ##  Max.   :12.00   Max.   :23.00   Max.   :0   Max.   :0    Max.   :3.000  
+    ##       temp            atemp             hum           windspeed           cnt       
+    ##  Min.   :0.0200   Min.   :0.0000   Min.   :0.1200   Min.   :0.0000   Min.   :  1.0  
+    ##  1st Qu.:0.3200   1st Qu.:0.3182   1st Qu.:0.4500   1st Qu.:0.1045   1st Qu.: 43.0  
+    ##  Median :0.4800   Median :0.4697   Median :0.6200   Median :0.1940   Median :133.0  
+    ##  Mean   :0.4848   Mean   :0.4646   Mean   :0.6197   Mean   :0.1951   Mean   :190.8  
+    ##  3rd Qu.:0.6400   3rd Qu.:0.6212   3rd Qu.:0.7900   3rd Qu.:0.2836   3rd Qu.:300.0  
+    ##  Max.   :1.0000   Max.   :0.8939   Max.   :1.0000   Max.   :0.8358   Max.   :783.0
 
 Below we look at three plots. The first plot shows the histogram of bike
 rentals (`cnt`) on Saturday. The second plot shows that `cnt` does vary
@@ -176,6 +176,8 @@ cor(bikeTrain$season, bikeTrain$mnth)
 cor(bikeTrain$holiday, bikeTrain$workingday)
 ```
 
+    ## Warning in cor(bikeTrain$holiday, bikeTrain$workingday): the standard deviation is zero
+
     ## [1] NA
 
 ``` r
@@ -224,17 +226,52 @@ region is often the mean of observations in that region.
 For regression tree, we use the `caret` package and apply the
 leave-one-out cross validation method (thus the argument `method =
 "LOOCV"`). We set the `tuneLength` as 10 and let the model chooses the
-best model automatically. Below we can see the resulting RMSE, Rsquared,
-and MAE of different cp as well as a plot that visualizes this
-information.
-
-Finally we use the model to predict `cnt` on the test data and calculate
-RMSE to check the fit of the model.
+best model automatically.
 
 ``` r
 modelLookup("rpart")
 
 bikeTree <- train(cnt ~ ., data = bikeTrain, method = "rpart", trControl = trainControl(method = "LOOCV"), tuneLength = 10)
+```
+
+Below we can see the final model; the resulting RMSE, Rsquared, and MAE
+of different cp; and a plot that shows the relationship between cp and
+RMSE.
+
+``` r
+bikeTree$finalModel
+```
+
+    ## n= 1758 
+    ## 
+    ## node), split, n, deviance, yval
+    ##       * denotes terminal node
+    ## 
+    ##   1) root 1758 56585800.0 190.77990  
+    ##     2) hr< 8.5 642  1374935.0  46.78972 *
+    ##     3) hr>=8.5 1116 34242950.0 273.61290  
+    ##       6) atemp< 0.4621 507  6924617.0 163.94280  
+    ##        12) hr>=18.5 192   693775.0 101.62500 *
+    ##        13) hr< 18.5 315  5030727.0 201.92700  
+    ##          26) atemp< 0.29545 129   611626.9 125.02330 *
+    ##          27) atemp>=0.29545 186  3127042.0 255.26340  
+    ##            54) yr< 0.5 110   722442.9 182.97270 *
+    ##            55) yr>=0.5 76   997719.2 359.89470 *
+    ##       7) atemp>=0.4621 609 16143750.0 364.91460  
+    ##        14) hr>=18.5 184  1306232.0 226.83150 *
+    ##        15) hr< 18.5 425  9810302.0 424.69650  
+    ##          30) yr< 0.5 203  2108084.0 326.00000  
+    ##            60) hum>=0.785 26   395606.7 199.11540 *
+    ##            61) hum< 0.785 177  1232397.0 344.63840 *
+    ##          31) yr>=0.5 222  3916613.0 514.94590  
+    ##            62) hum>=0.685 32   372335.7 353.40620 *
+    ##            63) hum< 0.685 190  2568597.0 542.15260  
+    ##             126) hr< 10.5 25   113242.2 391.44000 *
+    ##             127) hr>=10.5 165  1801458.0 564.98790  
+    ##               254) atemp>=0.6894 53   393833.2 489.30190 *
+    ##               255) atemp< 0.6894 112   960351.7 600.80360 *
+
+``` r
 bikeTree
 ```
 
@@ -267,7 +304,10 @@ bikeTree
 plot(bikeTree)
 ```
 
-![](Report-Saturday_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](Report-Saturday_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+Finally we use the model to predict `cnt` on the test data and calculate
+RMSE to check the fit of the model.
 
 ``` r
 predTree <- predict(bikeTree, newdata = bikeTest)
@@ -283,27 +323,40 @@ as the tree grows.
 
 We again use `caret` package and set the method as `gbm`. We use
 repeated cross validation (`repeatedcv`) and set the `tuneLength` as 10
-and let the model chooses the best model automatically. We can then see
-the importance of each variable and a plot that shows how RMSE changes
-with different numbers of boosting iterations and tree depths.
-
-Finally, we use the model to predict `cnt` on the test data and
-calculate RMSE to check the fit of the model.
+and let the model chooses the best model automatically.
 
 ``` r
 modelLookup("gbm")
 
 boostedBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "gbm", preProcess = c("center", "scale"), trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3), tuneLength = 10, verbose = FALSE)
+```
+
+Below we can see some information about the final model, the predictors
+chosen and their importance, and a plot that shows how RMSE changes with
+different numbers of boosting iterations and tree depths.
+
+``` r
+boostedBike$finalModel
+```
+
+    ## A gradient boosted model with gaussian loss function.
+    ## 350 iterations were performed.
+    ## There were 7 predictors of which 7 had non-zero influence.
+
+``` r
 summary(boostedBike)
 ```
 
-![](Report-Saturday_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](Report-Saturday_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 ``` r
 plot(boostedBike)
 ```
 
-![](Report-Saturday_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
+![](Report-Saturday_files/figure-gfm/unnamed-chunk-16-2.png)<!-- -->
+
+Finally, we use the model to predict `cnt` on the test data and
+calculate RMSE to check the fit of the model.
 
 ``` r
 predBoostedBike <- predict(boostedBike, newdata = select(bikeTest, -cnt))

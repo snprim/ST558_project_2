@@ -1,7 +1,7 @@
 Model Fitting and Report Automation with Bike Sharing Data
 ================
 Shih-Ni Prim
-2020-10-07
+2020-10-14
 
   - [Description](#description)
   - [Sub-documents](#sub-documents)

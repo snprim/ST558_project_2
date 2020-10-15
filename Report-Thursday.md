@@ -1,7 +1,7 @@
 Thursday
 ================
 Shih-Ni Prim
-2020-10-11
+2020-10-14
 
   - [Introduction](#introduction)
   - [Setting the Value for the
@@ -139,19 +139,19 @@ ggplot(bikeTrain, mapping = aes(x = cnt)) + geom_histogram()
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](Report-Thursday_files/figure-gfm/unnamed-chunk-44-1.png)<!-- -->
+![](Report-Thursday_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 ggplot(bikeTrain, aes(x = hr, y = cnt)) + geom_point() + geom_jitter()
 ```
 
-![](Report-Thursday_files/figure-gfm/unnamed-chunk-44-2.png)<!-- -->
+![](Report-Thursday_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
 
 ``` r
 ggplot(bikeTrain, aes(x = yr, y = cnt)) + geom_boxplot(aes(group = yr))
 ```
 
-![](Report-Thursday_files/figure-gfm/unnamed-chunk-44-3.png)<!-- -->
+![](Report-Thursday_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
 
 Next we look at correlations of different variables. Weather and
 windspeed do not seem correlate, so we will keep both `weathersit` and
@@ -161,7 +161,7 @@ windspeed do not seem correlate, so we will keep both `weathersit` and
 ggplot(bikeTrain, aes(x = weathersit, y = windspeed)) + geom_jitter()
 ```
 
-![](Report-Thursday_files/figure-gfm/unnamed-chunk-45-1.png)<!-- -->
+![](Report-Thursday_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 Several pairs of variables seem highly correlated–`season` and `mnth`,
 `holiday` and `workingday`–so we’ll remove one from each pair.
@@ -224,17 +224,52 @@ region is often the mean of observations in that region.
 For regression tree, we use the `caret` package and apply the
 leave-one-out cross validation method (thus the argument `method =
 "LOOCV"`). We set the `tuneLength` as 10 and let the model chooses the
-best model automatically. Below we can see the resulting RMSE, Rsquared,
-and MAE of different cp as well as a plot that visualizes this
-information.
-
-Finally we use the model to predict `cnt` on the test data and calculate
-RMSE to check the fit of the model.
+best model automatically.
 
 ``` r
 modelLookup("rpart")
 
 bikeTree <- train(cnt ~ ., data = bikeTrain, method = "rpart", trControl = trainControl(method = "LOOCV"), tuneLength = 10)
+```
+
+Below we can see the final model; the resulting RMSE, Rsquared, and MAE
+of different cp; and a plot that shows the relationship between cp and
+RMSE.
+
+``` r
+bikeTree$finalModel
+```
+
+    ## n= 1729 
+    ## 
+    ## node), split, n, deviance, yval
+    ##       * denotes terminal node
+    ## 
+    ##   1) root 1729 61651110.0 197.75940  
+    ##     2) hr< 6.5 494   833934.4  30.82794 *
+    ##     3) hr>=6.5 1235 41544970.0 264.53200  
+    ##       6) yr< 0.5 618  9080075.0 188.99510  
+    ##        12) atemp< 0.44695 257  2069753.0 128.89880 *
+    ##        13) atemp>=0.44695 361  5421372.0 231.77840  
+    ##          26) hr< 15.5 194  1263195.0 188.01550 *
+    ##          27) hr>=15.5 167  3355011.0 282.61680  
+    ##            54) hr>=20.5 52   140762.7 153.78850 *
+    ##            55) hr< 20.5 115  1960979.0 340.86960 *
+    ##       7) yr>=0.5 617 25406800.0 340.19120  
+    ##        14) hr>=20.5 106   812800.7 185.63210 *
+    ##        15) hr< 20.5 511 21536540.0 372.25240  
+    ##          30) hr< 16.5 362  8087357.0 299.96960  
+    ##            60) hr>=8.5 291  2247388.0 249.26120 *
+    ##            61) hr< 8.5 71  2024887.0 507.80280  
+    ##             122) hr< 7.5 34   496272.5 385.47060 *
+    ##             123) hr>=7.5 37   552238.3 620.21620 *
+    ##          31) hr>=16.5 149  6962641.0 547.86580  
+    ##            62) atemp< 0.47725 50  1219650.0 349.92000 *
+    ##            63) atemp>=0.47725 99  2794407.0 647.83840  
+    ##             126) hr>=18.5 44   343906.4 495.88640 *
+    ##             127) hr< 18.5 55   621819.2 769.40000 *
+
+``` r
 bikeTree
 ```
 
@@ -267,7 +302,10 @@ bikeTree
 plot(bikeTree)
 ```
 
-![](Report-Thursday_files/figure-gfm/unnamed-chunk-49-1.png)<!-- -->
+![](Report-Thursday_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+Finally we use the model to predict `cnt` on the test data and calculate
+RMSE to check the fit of the model.
 
 ``` r
 predTree <- predict(bikeTree, newdata = bikeTest)
@@ -283,27 +321,40 @@ as the tree grows.
 
 We again use `caret` package and set the method as `gbm`. We use
 repeated cross validation (`repeatedcv`) and set the `tuneLength` as 10
-and let the model chooses the best model automatically. We can then see
-the importance of each variable and a plot that shows how RMSE changes
-with different numbers of boosting iterations and tree depths.
-
-Finally, we use the model to predict `cnt` on the test data and
-calculate RMSE to check the fit of the model.
+and let the model chooses the best model automatically.
 
 ``` r
 modelLookup("gbm")
 
 boostedBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "gbm", preProcess = c("center", "scale"), trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3), tuneLength = 10, verbose = FALSE)
+```
+
+Below we can see some information about the final model, the predictors
+chosen and their importance, and a plot that shows how RMSE changes with
+different numbers of boosting iterations and tree depths.
+
+``` r
+boostedBike$finalModel
+```
+
+    ## A gradient boosted model with gaussian loss function.
+    ## 200 iterations were performed.
+    ## There were 7 predictors of which 7 had non-zero influence.
+
+``` r
 summary(boostedBike)
 ```
 
-![](Report-Thursday_files/figure-gfm/unnamed-chunk-50-1.png)<!-- -->
+![](Report-Thursday_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 ``` r
 plot(boostedBike)
 ```
 
-![](Report-Thursday_files/figure-gfm/unnamed-chunk-50-2.png)<!-- -->
+![](Report-Thursday_files/figure-gfm/unnamed-chunk-16-2.png)<!-- -->
+
+Finally, we use the model to predict `cnt` on the test data and
+calculate RMSE to check the fit of the model.
 
 ``` r
 predBoostedBike <- predict(boostedBike, newdata = select(bikeTest, -cnt))

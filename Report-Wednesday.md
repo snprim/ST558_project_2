@@ -1,7 +1,7 @@
 Wednesday
 ================
 Shih-Ni Prim
-2020-10-11
+2020-10-14
 
   - [Introduction](#introduction)
   - [Setting the Value for the
@@ -139,19 +139,19 @@ ggplot(bikeTrain, mapping = aes(x = cnt)) + geom_histogram()
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](Report-Wednesday_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](Report-Wednesday_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 ggplot(bikeTrain, aes(x = hr, y = cnt)) + geom_point() + geom_jitter()
 ```
 
-![](Report-Wednesday_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
+![](Report-Wednesday_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
 
 ``` r
 ggplot(bikeTrain, aes(x = yr, y = cnt)) + geom_boxplot(aes(group = yr))
 ```
 
-![](Report-Wednesday_files/figure-gfm/unnamed-chunk-13-3.png)<!-- -->
+![](Report-Wednesday_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
 
 Next we look at correlations of different variables. Weather and
 windspeed do not seem correlate, so we will keep both `weathersit` and
@@ -161,7 +161,7 @@ windspeed do not seem correlate, so we will keep both `weathersit` and
 ggplot(bikeTrain, aes(x = weathersit, y = windspeed)) + geom_jitter()
 ```
 
-![](Report-Wednesday_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](Report-Wednesday_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 Several pairs of variables seem highly correlated–`season` and `mnth`,
 `holiday` and `workingday`–so we’ll remove one from each pair.
@@ -224,17 +224,54 @@ region is often the mean of observations in that region.
 For regression tree, we use the `caret` package and apply the
 leave-one-out cross validation method (thus the argument `method =
 "LOOCV"`). We set the `tuneLength` as 10 and let the model chooses the
-best model automatically. Below we can see the resulting RMSE, Rsquared,
-and MAE of different cp as well as a plot that visualizes this
-information.
-
-Finally we use the model to predict `cnt` on the test data and calculate
-RMSE to check the fit of the model.
+best model automatically.
 
 ``` r
 modelLookup("rpart")
 
 bikeTree <- train(cnt ~ ., data = bikeTrain, method = "rpart", trControl = trainControl(method = "LOOCV"), tuneLength = 10)
+```
+
+Below we can see the final model; the resulting RMSE, Rsquared, and MAE
+of different cp; and a plot that shows the relationship between cp and
+RMSE.
+
+``` r
+bikeTree$finalModel
+```
+
+    ## n= 1732 
+    ## 
+    ## node), split, n, deviance, yval
+    ##       * denotes terminal node
+    ## 
+    ##   1) root 1732 61857530.00 190.47690  
+    ##     2) hr< 6.5 503  1005815.00  30.40755 *
+    ##     3) hr>=6.5 1229 42689020.00 255.98940  
+    ##       6) yr< 0.5 618 10921580.00 183.41100  
+    ##        12) atemp< 0.5682 375  3864995.00 135.17070 *
+    ##        13) atemp>=0.5682 243  4837196.00 257.85600  
+    ##          26) hr< 16.5 141  1357167.00 213.00710  
+    ##            52) hr>=8.5 118   326707.40 177.31360 *
+    ##            53) hr< 8.5 23   108838.60 396.13040 *
+    ##          27) hr>=16.5 102  2804369.00 319.85290  
+    ##            54) hr>=19.5 54   391446.00 192.66670 *
+    ##            55) hr< 19.5 48   556686.80 462.93750 *
+    ##       7) yr>=0.5 611 25219350.00 329.39930  
+    ##        14) hr>=20.5 105   983550.00 177.64760 *
+    ##        15) hr< 20.5 506 21316040.00 360.88930  
+    ##          30) hr< 16.5 361  9234002.00 300.31860  
+    ##            60) hr>=8.5 296  3028091.00 250.10140 *
+    ##            61) hr< 8.5 65  2060280.00 529.00000  
+    ##             122) hr< 7.5 33   408920.90 411.18180 *
+    ##             123) hr>=7.5 32   720890.00 650.50000 *
+    ##          31) hr>=16.5 145  7460189.00 511.68970  
+    ##            62) atemp< 0.52275 67  2049867.00 364.95520 *
+    ##            63) atemp>=0.52275 78  2728609.00 637.73080  
+    ##             126) hr>=19.5 17    68429.53 422.70590 *
+    ##             127) hr< 19.5 61  1655122.00 697.65570 *
+
+``` r
 bikeTree
 ```
 
@@ -267,7 +304,10 @@ bikeTree
 plot(bikeTree)
 ```
 
-![](Report-Wednesday_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](Report-Wednesday_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+Finally we use the model to predict `cnt` on the test data and calculate
+RMSE to check the fit of the model.
 
 ``` r
 predTree <- predict(bikeTree, newdata = bikeTest)
@@ -283,27 +323,40 @@ as the tree grows.
 
 We again use `caret` package and set the method as `gbm`. We use
 repeated cross validation (`repeatedcv`) and set the `tuneLength` as 10
-and let the model chooses the best model automatically. We can then see
-the importance of each variable and a plot that shows how RMSE changes
-with different numbers of boosting iterations and tree depths.
-
-Finally, we use the model to predict `cnt` on the test data and
-calculate RMSE to check the fit of the model.
+and let the model chooses the best model automatically.
 
 ``` r
 modelLookup("gbm")
 
 boostedBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "gbm", preProcess = c("center", "scale"), trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3), tuneLength = 10, verbose = FALSE)
+```
+
+Below we can see some information about the final model, the predictors
+chosen and their importance, and a plot that shows how RMSE changes with
+different numbers of boosting iterations and tree depths.
+
+``` r
+boostedBike$finalModel
+```
+
+    ## A gradient boosted model with gaussian loss function.
+    ## 250 iterations were performed.
+    ## There were 7 predictors of which 7 had non-zero influence.
+
+``` r
 summary(boostedBike)
 ```
 
-![](Report-Wednesday_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](Report-Wednesday_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 ``` r
 plot(boostedBike)
 ```
 
-![](Report-Wednesday_files/figure-gfm/unnamed-chunk-19-2.png)<!-- -->
+![](Report-Wednesday_files/figure-gfm/unnamed-chunk-16-2.png)<!-- -->
+
+Finally, we use the model to predict `cnt` on the test data and
+calculate RMSE to check the fit of the model.
 
 ``` r
 predBoostedBike <- predict(boostedBike, newdata = select(bikeTest, -cnt))
