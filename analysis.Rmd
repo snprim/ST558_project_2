@@ -11,7 +11,7 @@ editor_options:
 ---
 title: `r params$weekday`  
 author: "Shih-Ni Prim"  
-date: "2020-10-14"  
+date: "2020-10-16"  
 ---
 
 ```{r setup, include=FALSE, message = FALSE, warning = FALSE}
@@ -142,7 +142,7 @@ For regression tree, we use the `caret` package and apply the leave-one-out cros
 ```{r, cache = TRUE}
 modelLookup("rpart")
 
-bikeTree <- train(cnt ~ ., data = bikeTrain, method = "rpart", trControl = trainControl(method = "LOOCV"), tuneLength = 10)
+bikeTree <- train(cnt ~ ., data = bikeTrain, method = "rpart", trControl = trainControl(method = "LOOCV"), tuneGrid = expand.grid(cp = seq(0.01, 0.02, 0.001)))
 ```
 
 Below we can see the final model; the resulting RMSE, Rsquared, and MAE of different cp; and a plot that shows the relationship between cp and RMSE.  
@@ -170,7 +170,9 @@ We again use `caret` package and set the method as `gbm`. We use repeated cross 
 ```{r, cache = TRUE}
 modelLookup("gbm")
 
-boostedBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "gbm", preProcess = c("center", "scale"), trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3), tuneLength = 10, verbose = FALSE)
+grid <- expand.grid(n.trees = c(50, 100, 150), interaction.depth = 1:4, shrinkage = c(0.1, 0.01), n.minobsinnode = c(10, 15, 20))
+
+boostedBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "gbm", preProcess = c("center", "scale"), trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3), tuneGrid = grid, verbose = FALSE)
 ```
 
 Below we can see some information about the final model, the predictors chosen and their importance, and a plot that shows how RMSE changes with different numbers of boosting iterations and tree depths.  
@@ -187,7 +189,6 @@ Finally, we use the model to predict `cnt` on the test data and calculate RMSE t
 ```{r}
 predBoostedBike <- predict(boostedBike, newdata = select(bikeTest, -cnt))
 boostedResult <- postResample(predBoostedBike, bikeTest$cnt)
-
 ```
 
 

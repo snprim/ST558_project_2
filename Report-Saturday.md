@@ -1,7 +1,7 @@
 Saturday
 ================
 Shih-Ni Prim
-2020-10-14
+2020-10-16
 
   - [Introduction](#introduction)
   - [Setting the Value for the
@@ -113,20 +113,20 @@ summary(bikeTrain)
     ##  Mean   :2011-12-26   Mean   :6   Mean   : 8540   Mean   :2.464   Mean   :0.4898  
     ##  3rd Qu.:2012-06-23   3rd Qu.:6   3rd Qu.:12834   3rd Qu.:3.000   3rd Qu.:1.0000  
     ##  Max.   :2012-12-29   Max.   :6   Max.   :17331   Max.   :4.000   Max.   :1.0000  
-    ##       mnth             hr           holiday    workingday   weathersit   
-    ##  Min.   : 1.00   Min.   : 0.00   Min.   :0   Min.   :0    Min.   :1.000  
-    ##  1st Qu.: 3.00   1st Qu.: 6.00   1st Qu.:0   1st Qu.:0    1st Qu.:1.000  
-    ##  Median : 6.00   Median :12.00   Median :0   Median :0    Median :1.000  
-    ##  Mean   : 6.48   Mean   :11.67   Mean   :0   Mean   :0    Mean   :1.409  
-    ##  3rd Qu.: 9.00   3rd Qu.:18.00   3rd Qu.:0   3rd Qu.:0    3rd Qu.:2.000  
-    ##  Max.   :12.00   Max.   :23.00   Max.   :0   Max.   :0    Max.   :3.000  
-    ##       temp            atemp             hum           windspeed           cnt       
-    ##  Min.   :0.0200   Min.   :0.0000   Min.   :0.1200   Min.   :0.0000   Min.   :  1.0  
-    ##  1st Qu.:0.3200   1st Qu.:0.3182   1st Qu.:0.4500   1st Qu.:0.1045   1st Qu.: 43.0  
-    ##  Median :0.4800   Median :0.4697   Median :0.6200   Median :0.1940   Median :133.0  
-    ##  Mean   :0.4848   Mean   :0.4646   Mean   :0.6197   Mean   :0.1951   Mean   :190.8  
-    ##  3rd Qu.:0.6400   3rd Qu.:0.6212   3rd Qu.:0.7900   3rd Qu.:0.2836   3rd Qu.:300.0  
-    ##  Max.   :1.0000   Max.   :0.8939   Max.   :1.0000   Max.   :0.8358   Max.   :783.0
+    ##       mnth             hr           holiday    workingday   weathersit         temp       
+    ##  Min.   : 1.00   Min.   : 0.00   Min.   :0   Min.   :0    Min.   :1.000   Min.   :0.0200  
+    ##  1st Qu.: 3.00   1st Qu.: 6.00   1st Qu.:0   1st Qu.:0    1st Qu.:1.000   1st Qu.:0.3200  
+    ##  Median : 6.00   Median :12.00   Median :0   Median :0    Median :1.000   Median :0.4800  
+    ##  Mean   : 6.48   Mean   :11.67   Mean   :0   Mean   :0    Mean   :1.409   Mean   :0.4848  
+    ##  3rd Qu.: 9.00   3rd Qu.:18.00   3rd Qu.:0   3rd Qu.:0    3rd Qu.:2.000   3rd Qu.:0.6400  
+    ##  Max.   :12.00   Max.   :23.00   Max.   :0   Max.   :0    Max.   :3.000   Max.   :1.0000  
+    ##      atemp             hum           windspeed           cnt       
+    ##  Min.   :0.0000   Min.   :0.1200   Min.   :0.0000   Min.   :  1.0  
+    ##  1st Qu.:0.3182   1st Qu.:0.4500   1st Qu.:0.1045   1st Qu.: 43.0  
+    ##  Median :0.4697   Median :0.6200   Median :0.1940   Median :133.0  
+    ##  Mean   :0.4646   Mean   :0.6197   Mean   :0.1951   Mean   :190.8  
+    ##  3rd Qu.:0.6212   3rd Qu.:0.7900   3rd Qu.:0.2836   3rd Qu.:300.0  
+    ##  Max.   :0.8939   Max.   :1.0000   Max.   :0.8358   Max.   :783.0
 
 Below we look at three plots. The first plot shows the histogram of bike
 rentals (`cnt`) on Saturday. The second plot shows that `cnt` does vary
@@ -139,19 +139,19 @@ ggplot(bikeTrain, mapping = aes(x = cnt)) + geom_histogram()
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](Report-Saturday_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](Report-Saturday_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 ggplot(bikeTrain, aes(x = hr, y = cnt)) + geom_point() + geom_jitter()
 ```
 
-![](Report-Saturday_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+![](Report-Saturday_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
 
 ``` r
 ggplot(bikeTrain, aes(x = yr, y = cnt)) + geom_boxplot(aes(group = yr))
 ```
 
-![](Report-Saturday_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
+![](Report-Saturday_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
 
 Next we look at correlations of different variables. Weather and
 windspeed do not seem correlate, so we will keep both `weathersit` and
@@ -161,7 +161,7 @@ windspeed do not seem correlate, so we will keep both `weathersit` and
 ggplot(bikeTrain, aes(x = weathersit, y = windspeed)) + geom_jitter()
 ```
 
-![](Report-Saturday_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](Report-Saturday_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 Several pairs of variables seem highly correlated–`season` and `mnth`,
 `holiday` and `workingday`–so we’ll remove one from each pair.
@@ -231,7 +231,7 @@ best model automatically.
 ``` r
 modelLookup("rpart")
 
-bikeTree <- train(cnt ~ ., data = bikeTrain, method = "rpart", trControl = trainControl(method = "LOOCV"), tuneLength = 10)
+bikeTree <- train(cnt ~ ., data = bikeTrain, method = "rpart", trControl = trainControl(method = "LOOCV"), tuneGrid = expand.grid(cp = seq(0.01, 0.02, 0.001)))
 ```
 
 Below we can see the final model; the resulting RMSE, Rsquared, and MAE
@@ -260,16 +260,12 @@ bikeTree$finalModel
     ##       7) atemp>=0.4621 609 16143750.0 364.91460  
     ##        14) hr>=18.5 184  1306232.0 226.83150 *
     ##        15) hr< 18.5 425  9810302.0 424.69650  
-    ##          30) yr< 0.5 203  2108084.0 326.00000  
-    ##            60) hum>=0.785 26   395606.7 199.11540 *
-    ##            61) hum< 0.785 177  1232397.0 344.63840 *
+    ##          30) yr< 0.5 203  2108084.0 326.00000 *
     ##          31) yr>=0.5 222  3916613.0 514.94590  
     ##            62) hum>=0.685 32   372335.7 353.40620 *
     ##            63) hum< 0.685 190  2568597.0 542.15260  
     ##             126) hr< 10.5 25   113242.2 391.44000 *
-    ##             127) hr>=10.5 165  1801458.0 564.98790  
-    ##               254) atemp>=0.6894 53   393833.2 489.30190 *
-    ##               255) atemp< 0.6894 112   960351.7 600.80360 *
+    ##             127) hr>=10.5 165  1801458.0 564.98790 *
 
 ``` r
 bikeTree
@@ -285,26 +281,27 @@ bikeTree
     ## Summary of sample sizes: 1757, 1757, 1757, 1757, 1757, 1757, ... 
     ## Resampling results across tuning parameters:
     ## 
-    ##   cp           RMSE       Rsquared     MAE      
-    ##   0.007040770   75.07932  0.824945618   56.88111
-    ##   0.007904336   78.97136  0.806597511   59.27433
-    ##   0.008484117   78.81065  0.807123689   59.42330
-    ##   0.011555841   80.83218  0.797371170   60.48926
-    ##   0.017242508   84.55271  0.778297129   62.60730
-    ##   0.022968387   97.75367  0.703617888   73.22815
-    ##   0.066900261  110.62617  0.621492097   81.23792
-    ##   0.088842295  124.78729  0.524106452   92.11094
-    ##   0.197480370  157.58921  0.262023117  122.78626
-    ##   0.370550844  187.30826  0.000360873  168.91480
+    ##   cp     RMSE      Rsquared   MAE     
+    ##   0.010  77.43742  0.8137188  58.19536
+    ##   0.011  79.03319  0.8061955  59.03842
+    ##   0.012  79.83696  0.8019993  59.85002
+    ##   0.013  79.83696  0.8019993  59.85002
+    ##   0.014  80.01667  0.8011178  59.92878
+    ##   0.015  80.01667  0.8011178  59.92878
+    ##   0.016  81.23130  0.7951441  60.28603
+    ##   0.017  82.92198  0.7870765  61.37413
+    ##   0.018  82.88164  0.7865968  61.50423
+    ##   0.019  82.72525  0.7873994  61.40857
+    ##   0.020  82.72525  0.7873994  61.40857
     ## 
     ## RMSE was used to select the optimal model using the smallest value.
-    ## The final value used for the model was cp = 0.00704077.
+    ## The final value used for the model was cp = 0.01.
 
 ``` r
 plot(bikeTree)
 ```
 
-![](Report-Saturday_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](Report-Saturday_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 Finally we use the model to predict `cnt` on the test data and calculate
 RMSE to check the fit of the model.
@@ -328,7 +325,9 @@ and let the model chooses the best model automatically.
 ``` r
 modelLookup("gbm")
 
-boostedBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "gbm", preProcess = c("center", "scale"), trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3), tuneLength = 10, verbose = FALSE)
+grid <- expand.grid(n.trees = c(50, 100, 150), interaction.depth = 1:4, shrinkage = c(0.1, 0.01), n.minobsinnode = c(10, 15, 20))
+
+boostedBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "gbm", preProcess = c("center", "scale"), trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3), tuneGrid = grid, verbose = FALSE)
 ```
 
 Below we can see some information about the final model, the predictors
@@ -340,20 +339,20 @@ boostedBike$finalModel
 ```
 
     ## A gradient boosted model with gaussian loss function.
-    ## 350 iterations were performed.
+    ## 150 iterations were performed.
     ## There were 7 predictors of which 7 had non-zero influence.
 
 ``` r
 summary(boostedBike)
 ```
 
-![](Report-Saturday_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](Report-Saturday_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 plot(boostedBike)
 ```
 
-![](Report-Saturday_files/figure-gfm/unnamed-chunk-16-2.png)<!-- -->
+![](Report-Saturday_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
 
 Finally, we use the model to predict `cnt` on the test data and
 calculate RMSE to check the fit of the model.
@@ -376,8 +375,8 @@ knitr::kable(comparison)
 
 |                 |     RMSE |  Rsquared |      MAE |
 | :-------------- | -------: | --------: | -------: |
-| Regression Tree | 76.55784 | 0.8213449 | 57.91357 |
-| Boosted Tree    | 39.82217 | 0.9514309 | 26.68246 |
+| Regression Tree | 80.82609 | 0.8006307 | 60.47904 |
+| Boosted Tree    | 45.72799 | 0.9360725 | 31.24816 |
 
 ### Final Model
 

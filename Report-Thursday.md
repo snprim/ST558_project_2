@@ -1,7 +1,7 @@
 Thursday
 ================
 Shih-Ni Prim
-2020-10-14
+2020-10-16
 
   - [Introduction](#introduction)
   - [Setting the Value for the
@@ -139,19 +139,19 @@ ggplot(bikeTrain, mapping = aes(x = cnt)) + geom_histogram()
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](Report-Thursday_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](Report-Thursday_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 ggplot(bikeTrain, aes(x = hr, y = cnt)) + geom_point() + geom_jitter()
 ```
 
-![](Report-Thursday_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+![](Report-Thursday_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
 
 ``` r
 ggplot(bikeTrain, aes(x = yr, y = cnt)) + geom_boxplot(aes(group = yr))
 ```
 
-![](Report-Thursday_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
+![](Report-Thursday_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
 
 Next we look at correlations of different variables. Weather and
 windspeed do not seem correlate, so we will keep both `weathersit` and
@@ -161,7 +161,7 @@ windspeed do not seem correlate, so we will keep both `weathersit` and
 ggplot(bikeTrain, aes(x = weathersit, y = windspeed)) + geom_jitter()
 ```
 
-![](Report-Thursday_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](Report-Thursday_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 Several pairs of variables seem highly correlated–`season` and `mnth`,
 `holiday` and `workingday`–so we’ll remove one from each pair.
@@ -229,7 +229,7 @@ best model automatically.
 ``` r
 modelLookup("rpart")
 
-bikeTree <- train(cnt ~ ., data = bikeTrain, method = "rpart", trControl = trainControl(method = "LOOCV"), tuneLength = 10)
+bikeTree <- train(cnt ~ ., data = bikeTrain, method = "rpart", trControl = trainControl(method = "LOOCV"), tuneGrid = expand.grid(cp = seq(0.01, 0.02, 0.001)))
 ```
 
 Below we can see the final model; the resulting RMSE, Rsquared, and MAE
@@ -251,7 +251,9 @@ bikeTree$finalModel
     ##       6) yr< 0.5 618  9080075.0 188.99510  
     ##        12) atemp< 0.44695 257  2069753.0 128.89880 *
     ##        13) atemp>=0.44695 361  5421372.0 231.77840  
-    ##          26) hr< 15.5 194  1263195.0 188.01550 *
+    ##          26) hr< 15.5 194  1263195.0 188.01550  
+    ##            52) hr>=8.5 163   294056.8 161.11660 *
+    ##            53) hr< 8.5 31   231069.7 329.45160 *
     ##          27) hr>=15.5 167  3355011.0 282.61680  
     ##            54) hr>=20.5 52   140762.7 153.78850 *
     ##            55) hr< 20.5 115  1960979.0 340.86960 *
@@ -283,26 +285,27 @@ bikeTree
     ## Summary of sample sizes: 1728, 1728, 1728, 1728, 1728, 1728, ... 
     ## Resampling results across tuning parameters:
     ## 
-    ##   cp          RMSE       Rsquared     MAE      
-    ##   0.01197170   91.43701  0.765674105   65.16064
-    ##   0.01583713   94.95047  0.747410509   66.64822
-    ##   0.01667801  103.05291  0.703376728   74.16877
-    ##   0.02577325  113.86348  0.640939769   82.07496
-    ##   0.02966178  114.81010  0.633841903   79.94050
-    ##   0.04782694  123.73114  0.575946525   84.48129
-    ##   0.06188179  129.41911  0.531668203   90.20204
-    ##   0.07740330  151.61627  0.365792159  105.44895
-    ##   0.11448457  171.65466  0.205302374  127.05104
-    ##   0.31260108  192.56919  0.005759948  164.46208
+    ##   cp     RMSE       Rsquared   MAE     
+    ##   0.010   88.47565  0.7805332  62.17621
+    ##   0.011   89.10008  0.7774511  62.41517
+    ##   0.012   91.33285  0.7661725  64.65007
+    ##   0.013   90.83635  0.7686618  63.91590
+    ##   0.014   91.08441  0.7673985  64.02656
+    ##   0.015   92.26546  0.7614277  64.41892
+    ##   0.016   94.78876  0.7483165  66.39899
+    ##   0.017  100.26266  0.7183485  71.09874
+    ##   0.018   99.71825  0.7213088  70.90109
+    ##   0.019  102.74885  0.7042953  71.86475
+    ##   0.020  102.74885  0.7042953  71.86475
     ## 
     ## RMSE was used to select the optimal model using the smallest value.
-    ## The final value used for the model was cp = 0.0119717.
+    ## The final value used for the model was cp = 0.01.
 
 ``` r
 plot(bikeTree)
 ```
 
-![](Report-Thursday_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](Report-Thursday_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 Finally we use the model to predict `cnt` on the test data and calculate
 RMSE to check the fit of the model.
@@ -326,7 +329,9 @@ and let the model chooses the best model automatically.
 ``` r
 modelLookup("gbm")
 
-boostedBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "gbm", preProcess = c("center", "scale"), trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3), tuneLength = 10, verbose = FALSE)
+grid <- expand.grid(n.trees = c(50, 100, 150), interaction.depth = 1:4, shrinkage = c(0.1, 0.01), n.minobsinnode = c(10, 15, 20))
+
+boostedBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "gbm", preProcess = c("center", "scale"), trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3), tuneGrid = grid, verbose = FALSE)
 ```
 
 Below we can see some information about the final model, the predictors
@@ -338,20 +343,20 @@ boostedBike$finalModel
 ```
 
     ## A gradient boosted model with gaussian loss function.
-    ## 200 iterations were performed.
+    ## 150 iterations were performed.
     ## There were 7 predictors of which 7 had non-zero influence.
 
 ``` r
 summary(boostedBike)
 ```
 
-![](Report-Thursday_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](Report-Thursday_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 plot(boostedBike)
 ```
 
-![](Report-Thursday_files/figure-gfm/unnamed-chunk-16-2.png)<!-- -->
+![](Report-Thursday_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
 
 Finally, we use the model to predict `cnt` on the test data and
 calculate RMSE to check the fit of the model.
@@ -374,8 +379,8 @@ knitr::kable(comparison)
 
 |                 |     RMSE |  Rsquared |      MAE |
 | :-------------- | -------: | --------: | -------: |
-| Regression Tree | 93.26389 | 0.7486153 | 66.22611 |
-| Boosted Tree    | 50.46376 | 0.9263942 | 29.02413 |
+| Regression Tree | 88.51060 | 0.7737665 | 62.85053 |
+| Boosted Tree    | 51.17239 | 0.9243865 | 30.14302 |
 
 ### Final Model
 
