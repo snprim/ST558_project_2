@@ -67,7 +67,7 @@ print(weekdayNum)
 Now we read in the data. Two datasets are listed on [the link](https://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset), one including the `hr` variable, and one treating each day as one observation and thus not including the `hr` variable. Since hours--the time in the day--should be a meaningful predictor for the number of bike rentals, we use the dataset with the `hr` variable  
 
 ```{r}
-bikes <- read_csv("../Bike-Sharing-Dataset/hour.csv")
+bikes <- read_csv("Bike-Sharing-Dataset/hour.csv")
 # head(bikes)
 analysis <- bikes %>% filter(weekday == weekdayNum) %>% select(-casual, -registered) %>% select(dteday, weekday, everything()) 
 # head(analysis)
