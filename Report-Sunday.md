@@ -13,6 +13,7 @@ Shih-Ni Prim
   - [Fitting models](#fitting-models)
       - [Regression tree](#regression-tree)
       - [Boosted Tree](#boosted-tree)
+      - [Linear Regression Model](#linear-regression-model)
       - [Comparison](#comparison)
       - [Final Model](#final-model)
 
@@ -52,7 +53,7 @@ time in the day–should be a meaningful predictor for the number of bike
 rentals, we use the dataset with the `hr` variable
 
 ``` r
-bikes <- read_csv("../Bike-Sharing-Dataset/hour.csv")
+bikes <- read_csv("Bike-Sharing-Dataset/hour.csv")
 ```
 
     ## Parsed with column specification:
@@ -106,27 +107,34 @@ quick look at the data. We can look at summaries of numerical variables.
 summary(bikeTrain)
 ```
 
-    ##      dteday              weekday     instant          season            yr       
-    ##  Min.   :2011-01-02   Min.   :0   Min.   :   25   Min.   :1.000   Min.   :0.000  
-    ##  1st Qu.:2011-07-03   1st Qu.:0   1st Qu.: 4304   1st Qu.:1.000   1st Qu.:0.000  
-    ##  Median :2012-01-01   Median :0   Median : 8652   Median :2.000   Median :1.000  
-    ##  Mean   :2011-12-30   Mean   :0   Mean   : 8615   Mean   :2.471   Mean   :0.502  
-    ##  3rd Qu.:2012-07-01   3rd Qu.:0   3rd Qu.:13006   3rd Qu.:3.000   3rd Qu.:1.000  
-    ##  Max.   :2012-12-30   Max.   :0   Max.   :17355   Max.   :4.000   Max.   :1.000  
-    ##       mnth              hr           holiday    workingday   weathersit   
-    ##  Min.   : 1.000   Min.   : 0.00   Min.   :0   Min.   :0    Min.   :1.000  
-    ##  1st Qu.: 4.000   1st Qu.: 6.00   1st Qu.:0   1st Qu.:0    1st Qu.:1.000  
-    ##  Median : 7.000   Median :12.00   Median :0   Median :0    Median :1.000  
-    ##  Mean   : 6.444   Mean   :11.59   Mean   :0   Mean   :0    Mean   :1.367  
-    ##  3rd Qu.: 9.000   3rd Qu.:18.00   3rd Qu.:0   3rd Qu.:0    3rd Qu.:2.000  
-    ##  Max.   :12.000   Max.   :23.00   Max.   :0   Max.   :0    Max.   :3.000  
-    ##       temp            atemp             hum           windspeed           cnt       
-    ##  Min.   :0.0200   Min.   :0.0455   Min.   :0.1700   Min.   :0.0000   Min.   :  1.0  
-    ##  1st Qu.:0.3400   1st Qu.:0.3333   1st Qu.:0.4800   1st Qu.:0.1045   1st Qu.: 42.0  
-    ##  Median :0.4800   Median :0.4697   Median :0.6400   Median :0.1642   Median :118.0  
-    ##  Mean   :0.4845   Mean   :0.4658   Mean   :0.6285   Mean   :0.1894   Mean   :178.7  
-    ##  3rd Qu.:0.6400   3rd Qu.:0.6061   3rd Qu.:0.7800   3rd Qu.:0.2537   3rd Qu.:288.5  
-    ##  Max.   :0.9400   Max.   :0.8939   Max.   :1.0000   Max.   :0.8507   Max.   :776.0
+    ##      dteday              weekday     instant          season     
+    ##  Min.   :2011-01-02   Min.   :0   Min.   :   25   Min.   :1.000  
+    ##  1st Qu.:2011-07-03   1st Qu.:0   1st Qu.: 4304   1st Qu.:1.000  
+    ##  Median :2012-01-01   Median :0   Median : 8652   Median :2.000  
+    ##  Mean   :2011-12-30   Mean   :0   Mean   : 8615   Mean   :2.471  
+    ##  3rd Qu.:2012-07-01   3rd Qu.:0   3rd Qu.:13006   3rd Qu.:3.000  
+    ##  Max.   :2012-12-30   Max.   :0   Max.   :17355   Max.   :4.000  
+    ##        yr             mnth              hr           holiday    workingday
+    ##  Min.   :0.000   Min.   : 1.000   Min.   : 0.00   Min.   :0   Min.   :0   
+    ##  1st Qu.:0.000   1st Qu.: 4.000   1st Qu.: 6.00   1st Qu.:0   1st Qu.:0   
+    ##  Median :1.000   Median : 7.000   Median :12.00   Median :0   Median :0   
+    ##  Mean   :0.502   Mean   : 6.444   Mean   :11.59   Mean   :0   Mean   :0   
+    ##  3rd Qu.:1.000   3rd Qu.: 9.000   3rd Qu.:18.00   3rd Qu.:0   3rd Qu.:0   
+    ##  Max.   :1.000   Max.   :12.000   Max.   :23.00   Max.   :0   Max.   :0   
+    ##    weathersit         temp            atemp             hum        
+    ##  Min.   :1.000   Min.   :0.0200   Min.   :0.0455   Min.   :0.1700  
+    ##  1st Qu.:1.000   1st Qu.:0.3400   1st Qu.:0.3333   1st Qu.:0.4800  
+    ##  Median :1.000   Median :0.4800   Median :0.4697   Median :0.6400  
+    ##  Mean   :1.367   Mean   :0.4845   Mean   :0.4658   Mean   :0.6285  
+    ##  3rd Qu.:2.000   3rd Qu.:0.6400   3rd Qu.:0.6061   3rd Qu.:0.7800  
+    ##  Max.   :3.000   Max.   :0.9400   Max.   :0.8939   Max.   :1.0000  
+    ##    windspeed           cnt       
+    ##  Min.   :0.0000   Min.   :  1.0  
+    ##  1st Qu.:0.1045   1st Qu.: 42.0  
+    ##  Median :0.1642   Median :118.0  
+    ##  Mean   :0.1894   Mean   :178.7  
+    ##  3rd Qu.:0.2537   3rd Qu.:288.5  
+    ##  Max.   :0.8507   Max.   :776.0
 
 Below we look at three plots. The first plot shows the histogram of bike
 rentals (`cnt`) on Sunday. The second plot shows that `cnt` does vary in
@@ -139,19 +147,19 @@ ggplot(bikeTrain, mapping = aes(x = cnt)) + geom_histogram()
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](Report-Sunday_files/figure-gfm/unnamed-chunk-72-1.png)<!-- -->
+![](Report-Sunday_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 ggplot(bikeTrain, aes(x = hr, y = cnt)) + geom_point() + geom_jitter()
 ```
 
-![](Report-Sunday_files/figure-gfm/unnamed-chunk-72-2.png)<!-- -->
+![](Report-Sunday_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
 
 ``` r
 ggplot(bikeTrain, aes(x = yr, y = cnt)) + geom_boxplot(aes(group = yr))
 ```
 
-![](Report-Sunday_files/figure-gfm/unnamed-chunk-72-3.png)<!-- -->
+![](Report-Sunday_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
 
 Next we look at correlations of different variables. Weather and
 windspeed do not seem correlate, so we will keep both `weathersit` and
@@ -161,7 +169,7 @@ windspeed do not seem correlate, so we will keep both `weathersit` and
 ggplot(bikeTrain, aes(x = weathersit, y = windspeed)) + geom_jitter()
 ```
 
-![](Report-Sunday_files/figure-gfm/unnamed-chunk-73-1.png)<!-- -->
+![](Report-Sunday_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 Several pairs of variables seem highly correlated–`season` and `mnth`,
 `holiday` and `workingday`–so we’ll remove one from each pair.
@@ -176,7 +184,8 @@ cor(bikeTrain$season, bikeTrain$mnth)
 cor(bikeTrain$holiday, bikeTrain$workingday)
 ```
 
-    ## Warning in cor(bikeTrain$holiday, bikeTrain$workingday): the standard deviation is zero
+    ## Warning in cor(bikeTrain$holiday, bikeTrain$workingday): the standard deviation
+    ## is zero
 
     ## [1] NA
 
@@ -230,7 +239,12 @@ best model automatically.
 
 ``` r
 modelLookup("rpart")
+```
 
+    ##   model parameter                label forReg forClass probModel
+    ## 1 rpart        cp Complexity Parameter   TRUE     TRUE      TRUE
+
+``` r
 bikeTree <- train(cnt ~ ., data = bikeTrain, method = "rpart", trControl = trainControl(method = "LOOCV"), tuneGrid = expand.grid(cp = seq(0.01, 0.02, 0.001)))
 ```
 
@@ -297,7 +311,7 @@ bikeTree
 plot(bikeTree)
 ```
 
-![](Report-Sunday_files/figure-gfm/unnamed-chunk-78-1.png)<!-- -->
+![](Report-Sunday_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 Finally we use the model to predict `cnt` on the test data and calculate
 RMSE to check the fit of the model.
@@ -320,7 +334,15 @@ and let the model chooses the best model automatically.
 
 ``` r
 modelLookup("gbm")
+```
 
+    ##   model         parameter                   label forReg forClass probModel
+    ## 1   gbm           n.trees   # Boosting Iterations   TRUE     TRUE      TRUE
+    ## 2   gbm interaction.depth          Max Tree Depth   TRUE     TRUE      TRUE
+    ## 3   gbm         shrinkage               Shrinkage   TRUE     TRUE      TRUE
+    ## 4   gbm    n.minobsinnode Min. Terminal Node Size   TRUE     TRUE      TRUE
+
+``` r
 grid <- expand.grid(n.trees = c(50, 100, 150), interaction.depth = 1:4, shrinkage = c(0.1, 0.01), n.minobsinnode = c(10, 15, 20))
 
 boostedBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "gbm", preProcess = c("center", "scale"), trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3), tuneGrid = grid, verbose = FALSE)
@@ -342,13 +364,22 @@ boostedBike$finalModel
 summary(boostedBike)
 ```
 
-![](Report-Sunday_files/figure-gfm/unnamed-chunk-81-1.png)<!-- -->
+![](Report-Sunday_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+    ##                   var    rel.inf
+    ## hr                 hr 58.5746556
+    ## atemp           atemp 26.3190171
+    ## yr                 yr  7.3930779
+    ## hum               hum  3.9369616
+    ## season         season  1.8630663
+    ## weathersit weathersit  1.3502360
+    ## windspeed   windspeed  0.5629856
 
 ``` r
 plot(boostedBike)
 ```
 
-![](Report-Sunday_files/figure-gfm/unnamed-chunk-81-2.png)<!-- -->
+![](Report-Sunday_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
 
 Finally, we use the model to predict `cnt` on the test data and
 calculate RMSE to check the fit of the model.
@@ -356,6 +387,72 @@ calculate RMSE to check the fit of the model.
 ``` r
 predBoostedBike <- predict(boostedBike, newdata = select(bikeTest, -cnt))
 boostedResult <- postResample(predBoostedBike, bikeTest$cnt)
+```
+
+### Linear Regression Model
+
+A linear regression model fits a straight line to he data by minimizing
+the sum of squared residuals.
+
+We again use `caret` package and set the method as `lm`.
+
+``` r
+library(caret)
+
+linearBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "lm", preProcess = c("center", "scale"))
+```
+
+Below we can see the summary for the linear model.
+
+``` r
+linearBike$finalModel
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = .outcome ~ ., data = dat)
+    ## 
+    ## Coefficients:
+    ## (Intercept)       season           yr           hr   weathersit        atemp  
+    ##     178.736       21.846       28.123       34.987        2.250       75.577  
+    ##         hum    windspeed  
+    ##     -63.882        5.336
+
+``` r
+summary(linearBike)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = .outcome ~ ., data = dat)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -313.55  -82.08   -9.60   68.80  446.17 
+    ## 
+    ## Coefficients:
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)  178.736      2.847  62.781  < 2e-16 ***
+    ## season        21.846      3.142   6.952 5.06e-12 ***
+    ## yr            28.123      2.898   9.705  < 2e-16 ***
+    ## hr            34.987      2.949  11.866  < 2e-16 ***
+    ## weathersit     2.250      3.223   0.698   0.4852    
+    ## atemp         75.577      3.094  24.431  < 2e-16 ***
+    ## hum          -63.882      3.465 -18.437  < 2e-16 ***
+    ## windspeed      5.336      3.057   1.746   0.0811 .  
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 119.1 on 1743 degrees of freedom
+    ## Multiple R-squared:  0.5004, Adjusted R-squared:  0.4984 
+    ## F-statistic: 249.4 on 7 and 1743 DF,  p-value: < 2.2e-16
+
+Finally, we use the model to predict `cnt` on the test data and
+calculate RMSE to check the fit of the model.
+
+``` r
+predlinearBike <- predict(linearBike, newdata = select(bikeTest, -cnt))
+linearResult <- postResample(predlinearBike, bikeTest$cnt)
 ```
 
 ### Comparison

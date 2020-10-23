@@ -191,15 +191,42 @@ predBoostedBike <- predict(boostedBike, newdata = select(bikeTest, -cnt))
 boostedResult <- postResample(predBoostedBike, bikeTest$cnt)
 ```
 
+### Linear Regression Model
+
+A linear regression model fits a straight line to he data by minimizing the sum of squared residuals. 
+
+We again use `caret` package and set the method as `lm`.
+
+``` {r Linear Regression}
+
+library(caret)
+
+linearBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "lm", preProcess = c("center", "scale"))
+
+```
+
+Below we can see the summary for the linear model. 
+``` {r}
+linearBike$finalModel
+summary(linearBike)
+```
+
+Finally, we use the model to predict `cnt` on the test data and calculate RMSE to check the fit of the model.
+
+```{r}
+predlinearBike <- predict(linearBike, newdata = select(bikeTest, -cnt))
+linearResult <- postResample(predlinearBike, bikeTest$cnt)
+```
+
 
 ### Comparison  
 
 We can put the testing RMSE from the two models together for comparison.  
 
 ```{r}
-comparison <- data.frame(rbind(t(treeResult), t(boostedResult)))
+comparison <- data.frame(rbind(t(treeResult), t(boostedResult),t(linearResult)))
 colnames(comparison) <- c("RMSE", "Rsquared", "MAE")
-rownames(comparison) <- c("Regression Tree", "Boosted Tree")
+rownames(comparison) <- c("Regression Tree", "Boosted Tree", "Linear Regression")
 knitr::kable(comparison)
 ```
 
