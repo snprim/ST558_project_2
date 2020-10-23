@@ -1,11 +1,11 @@
-Friday
+Monday
 ================
 Shih-Ni Prim
 2020-10-16
 
 ## Introduction
 
-Now we take a look at Friday’s analysis. This dataset contains
+Now we take a look at Monday’s analysis. This dataset contains
 information about [bike
 sharing](https://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset).
 We have a variety of predictors, including hours, temperature, humidity,
@@ -15,7 +15,7 @@ the count of total rental bikes `cnt`.
 
 ## Setting the Value for the Parameter
 
-Since the current analysis is on Friday, we first find the corresponding
+Since the current analysis is on Monday, we first find the corresponding
 value for it.
 
 ``` r
@@ -27,7 +27,7 @@ weekdayNum <- df$i[df$dayz == params$weekday]
 print(weekdayNum)
 ```
 
-    ## [1] 5
+    ## [1] 1
     ## Levels: 0 1 2 3 4 5 6
 
 ## Data
@@ -95,36 +95,36 @@ summary(bikeTrain)
 ```
 
     ##      dteday              weekday     instant          season     
-    ##  Min.   :2011-01-07   Min.   :5   Min.   :  139   Min.   :1.000  
-    ##  1st Qu.:2011-07-01   1st Qu.:5   1st Qu.: 4270   1st Qu.:2.000  
-    ##  Median :2011-12-30   Median :5   Median : 8604   Median :2.500  
-    ##  Mean   :2011-12-30   Mean   :5   Mean   : 8631   Mean   :2.491  
-    ##  3rd Qu.:2012-06-29   3rd Qu.:5   3rd Qu.:12969   3rd Qu.:3.000  
-    ##  Max.   :2012-12-28   Max.   :5   Max.   :17307   Max.   :4.000  
-    ##        yr              mnth              hr           holiday       
-    ##  Min.   :0.0000   Min.   : 1.000   Min.   : 0.00   Min.   :0.00000  
-    ##  1st Qu.:0.0000   1st Qu.: 4.000   1st Qu.: 6.00   1st Qu.:0.00000  
-    ##  Median :0.0000   Median : 7.000   Median :12.00   Median :0.00000  
-    ##  Mean   :0.4948   Mean   : 6.547   Mean   :11.58   Mean   :0.01839  
-    ##  3rd Qu.:1.0000   3rd Qu.: 9.000   3rd Qu.:18.00   3rd Qu.:0.00000  
-    ##  Max.   :1.0000   Max.   :12.000   Max.   :23.00   Max.   :1.00000  
+    ##  Min.   :2011-01-03   Min.   :1   Min.   :   48   Min.   :1.000  
+    ##  1st Qu.:2011-06-27   1st Qu.:1   1st Qu.: 4170   1st Qu.:2.000  
+    ##  Median :2011-12-19   Median :1   Median : 8359   Median :2.000  
+    ##  Mean   :2011-12-26   Mean   :1   Mean   : 8542   Mean   :2.481  
+    ##  3rd Qu.:2012-06-25   3rd Qu.:1   3rd Qu.:12872   3rd Qu.:3.000  
+    ##  Max.   :2012-12-31   Max.   :1   Max.   :17379   Max.   :4.000  
+    ##        yr              mnth             hr           holiday      
+    ##  Min.   :0.0000   Min.   : 1.00   Min.   : 0.00   Min.   :0.0000  
+    ##  1st Qu.:0.0000   1st Qu.: 4.00   1st Qu.: 6.00   1st Qu.:0.0000  
+    ##  Median :0.0000   Median : 7.00   Median :12.00   Median :0.0000  
+    ##  Mean   :0.4916   Mean   : 6.46   Mean   :11.52   Mean   :0.1452  
+    ##  3rd Qu.:1.0000   3rd Qu.: 9.00   3rd Qu.:17.00   3rd Qu.:0.0000  
+    ##  Max.   :1.0000   Max.   :12.00   Max.   :23.00   Max.   :1.0000  
     ##    workingday       weathersit         temp            atemp       
-    ##  Min.   :0.0000   Min.   :1.000   Min.   :0.0600   Min.   :0.0303  
-    ##  1st Qu.:1.0000   1st Qu.:1.000   1st Qu.:0.3400   1st Qu.:0.3182  
-    ##  Median :1.0000   Median :1.000   Median :0.5000   Median :0.4848  
-    ##  Mean   :0.9816   Mean   :1.409   Mean   :0.4981   Mean   :0.4730  
+    ##  Min.   :0.0000   Min.   :1.000   Min.   :0.0200   Min.   :0.0606  
+    ##  1st Qu.:1.0000   1st Qu.:1.000   1st Qu.:0.3400   1st Qu.:0.3333  
+    ##  Median :1.0000   Median :1.000   Median :0.5200   Median :0.5000  
+    ##  Mean   :0.8548   Mean   :1.435   Mean   :0.4948   Mean   :0.4751  
     ##  3rd Qu.:1.0000   3rd Qu.:2.000   3rd Qu.:0.6600   3rd Qu.:0.6212  
-    ##  Max.   :1.0000   Max.   :3.000   Max.   :0.9800   Max.   :0.9848  
-    ##       hum           windspeed           cnt       
-    ##  Min.   :0.0800   Min.   :0.0000   Min.   :  1.0  
-    ##  1st Qu.:0.4700   1st Qu.:0.1045   1st Qu.: 47.0  
-    ##  Median :0.6100   Median :0.1642   Median :164.0  
-    ##  Mean   :0.6154   Mean   :0.1871   Mean   :195.2  
-    ##  3rd Qu.:0.7700   3rd Qu.:0.2537   3rd Qu.:287.0  
-    ##  Max.   :1.0000   Max.   :0.8060   Max.   :894.0
+    ##  Max.   :1.0000   Max.   :3.000   Max.   :0.9200   Max.   :0.8485  
+    ##       hum          windspeed           cnt       
+    ##  Min.   :0.150   Min.   :0.0000   Min.   :  1.0  
+    ##  1st Qu.:0.490   1st Qu.:0.1045   1st Qu.: 36.0  
+    ##  Median :0.640   Median :0.1642   Median :136.0  
+    ##  Mean   :0.635   Mean   :0.1888   Mean   :182.1  
+    ##  3rd Qu.:0.780   3rd Qu.:0.2537   3rd Qu.:268.0  
+    ##  Max.   :1.000   Max.   :0.7164   Max.   :968.0
 
 Below we look at three plots. The first plot shows the histogram of bike
-rentals (`cnt`) on Friday. The second plot shows that `cnt` does vary in
+rentals (`cnt`) on Monday. The second plot shows that `cnt` does vary in
 different hours. The third plot shows that `cnt` varies between the two
 years. So we know we should keep `hr` and `yr` as
     predictors.
@@ -135,19 +135,19 @@ ggplot(bikeTrain, mapping = aes(x = cnt)) + geom_histogram()
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](Report-Friday_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](analysis_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 ggplot(bikeTrain, aes(x = hr, y = cnt)) + geom_point() + geom_jitter()
 ```
 
-![](Report-Friday_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
+![](analysis_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
 
 ``` r
 ggplot(bikeTrain, aes(x = yr, y = cnt)) + geom_boxplot(aes(group = yr))
 ```
 
-![](Report-Friday_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
+![](analysis_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
 
 Next we look at correlations of different variables. Weather and
 windspeed do not seem correlate, so we will keep both `weathersit` and
@@ -157,7 +157,7 @@ windspeed do not seem correlate, so we will keep both `weathersit` and
 ggplot(bikeTrain, aes(x = weathersit, y = windspeed)) + geom_jitter()
 ```
 
-![](Report-Friday_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](analysis_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 Several pairs of variables seem highly correlated–`season` and `mnth`,
 `holiday` and `workingday`–so we’ll remove one from each pair.
@@ -166,7 +166,7 @@ Several pairs of variables seem highly correlated–`season` and `mnth`,
 cor(bikeTrain$season, bikeTrain$mnth)
 ```
 
-    ## [1] 0.80216
+    ## [1] 0.840952
 
 ``` r
 cor(bikeTrain$holiday, bikeTrain$workingday)
@@ -178,7 +178,7 @@ cor(bikeTrain$holiday, bikeTrain$workingday)
 cor(bikeTrain$temp, bikeTrain$atemp)
 ```
 
-    ## [1] 0.9636363
+    ## [1] 0.9931593
 
 The variance of `workingday` and `holiday` are too small and probably
 not good predictors.
@@ -187,13 +187,13 @@ not good predictors.
 var(bikeTrain$holiday)
 ```
 
-    ## [1] 0.01806296
+    ## [1] 0.1242205
 
 ``` r
 var(bikeTrain$workingday)
 ```
 
-    ## [1] 0.01806296
+    ## [1] 0.1242205
 
 Also, `instant` and `dteday` are for record-keeping. Thus, we decide to
 keep the following variables as the predictors: `season`, `yr`, `hr`,
@@ -225,7 +225,12 @@ best model automatically.
 
 ``` r
 modelLookup("rpart")
+```
 
+    ##   model parameter                label forReg forClass probModel
+    ## 1 rpart        cp Complexity Parameter   TRUE     TRUE      TRUE
+
+``` r
 bikeTree <- train(cnt ~ ., data = bikeTrain, method = "rpart", trControl = trainControl(method = "LOOCV"), tuneGrid = expand.grid(cp = seq(0.01, 0.02, 0.001)))
 ```
 
@@ -237,36 +242,40 @@ RMSE.
 bikeTree$finalModel
 ```
 
-    ## n= 1740 
+    ## n= 1735 
     ## 
     ## node), split, n, deviance, yval
     ##       * denotes terminal node
     ## 
-    ##   1) root 1740 52102700.0 195.22180  
-    ##     2) hr< 6.5 504   576865.3  30.88492 *
-    ##     3) hr>=6.5 1236 32364240.0 262.23300  
-    ##       6) yr< 0.5 625  8695546.0 196.23360  
-    ##        12) atemp< 0.4015 237  1337920.0 120.10550 *
-    ##        13) atemp>=0.4015 388  5145108.0 242.73450  
-    ##          26) hr>=19.5 85   233632.0 169.69410 *
-    ##          27) hr< 19.5 303  4330799.0 263.22440  
-    ##            54) hr< 15.5 209  1688020.0 218.65070  
-    ##             108) hr>=8.5 168   643020.0 192.50600 *
-    ##             109) hr< 8.5 41   459615.0 325.78050 *
-    ##            55) hr>=15.5 94  1304279.0 362.32980 *
-    ##       7) yr>=0.5 611 18161420.0 329.74470  
-    ##        14) hr>=19.5 144  1223835.0 200.86110 *
-    ##        15) hr< 19.5 467 13808030.0 369.48610  
-    ##          30) season< 1.5 118  1496402.0 246.05080 *
-    ##          31) season>=1.5 349  9905872.0 411.22060  
-    ##            62) hr< 15.5 238  4066170.0 351.26470  
-    ##             124) hr>=8.5 187  1062148.0 311.68450 *
-    ##             125) hr< 8.5 51  1636908.0 496.39220  
-    ##               250) hr< 7.5 25   149007.8 368.64000 *
-    ##               251) hr>=7.5 26   687562.6 619.23080 *
-    ##            63) hr>=15.5 111  3149755.0 539.77480  
-    ##             126) hr>=18.5 31   425393.7 419.45160 *
-    ##             127) hr< 18.5 80  2101641.0 586.40000 *
+    ##   1) root 1735 54385280.0 182.06860  
+    ##     2) hr< 6.5 494   604586.9  26.11134 *
+    ##     3) hr>=6.5 1241 36982380.0 244.14990  
+    ##       6) season< 1.5 313  3951716.0 131.58790  
+    ##        12) yr< 0.5 150   440639.3  84.53333 *
+    ##        13) yr>=0.5 163  2873326.0 174.88960  
+    ##          26) atemp< 0.3106 115  1032755.0 133.93040 *
+    ##          27) atemp>=0.3106 48  1185413.0 273.02080 *
+    ##       7) season>=1.5 928 27727290.0 282.11530  
+    ##        14) hr>=20.5 163   855545.8 140.82210 *
+    ##        15) hr< 20.5 765 22924300.0 312.22090  
+    ##          30) hr< 16.5 552  9986582.0 259.04890  
+    ##            60) hr>=8.5 438  4335261.0 229.43150  
+    ##             120) yr< 0.5 226  1281190.0 184.33630 *
+    ##             121) yr>=0.5 212  2104543.0 277.50470  
+    ##               242) hr< 15.5 181  1263510.0 256.37570 *
+    ##               243) hr>=15.5 31   288431.5 400.87100 *
+    ##            61) hr< 8.5 114  3790937.0 372.84210  
+    ##             122) yr< 0.5 56   611053.7 282.42860 *
+    ##             123) yr>=0.5 58  2280113.0 460.13790  
+    ##               246) hr< 7.5 29   585392.8 349.79310 *
+    ##               247) hr>=7.5 29   988513.2 570.48280 *
+    ##          31) hr>=16.5 213  7332570.0 450.01880  
+    ##            62) hr>=18.5 101  1359977.0 337.95050 *
+    ##            63) hr< 18.5 112  3560198.0 551.08040  
+    ##             126) yr< 0.5 62   940277.4 459.09680 *
+    ##             127) yr>=0.5 50  1444860.0 665.14000  
+    ##               254) hum>=0.795 7   152802.9 403.85710 *
+    ##               255) hum< 0.795 43   736381.4 707.67440 *
 
 ``` r
 bikeTree
@@ -274,26 +283,26 @@ bikeTree
 
     ## CART 
     ## 
-    ## 1740 samples
+    ## 1735 samples
     ##    7 predictor
     ## 
     ## No pre-processing
     ## Resampling: Leave-One-Out Cross-Validation 
-    ## Summary of sample sizes: 1739, 1739, 1739, 1739, 1739, 1739, ... 
+    ## Summary of sample sizes: 1734, 1734, 1734, 1734, 1734, 1734, ... 
     ## Resampling results across tuning parameters:
     ## 
-    ##   cp     RMSE      Rsquared   MAE     
-    ##   0.010  84.31198  0.7626093  59.88485
-    ##   0.011  86.53192  0.7500103  61.01352
-    ##   0.012  89.45032  0.7328724  62.95499
-    ##   0.013  87.80232  0.7425478  61.65603
-    ##   0.014  88.26676  0.7398159  61.85450
-    ##   0.015  89.28452  0.7339504  62.67223
-    ##   0.016  89.30792  0.7341393  62.76103
-    ##   0.017  89.30792  0.7341393  62.76103
-    ##   0.018  90.76004  0.7253025  63.42157
-    ##   0.019  96.99328  0.6858503  68.66973
-    ##   0.020  96.99328  0.6858503  68.66973
+    ##   cp     RMSE       Rsquared   MAE     
+    ##   0.010   89.60842  0.7442837  61.05418
+    ##   0.011   91.44549  0.7333711  61.80337
+    ##   0.012   95.63097  0.7085497  65.50042
+    ##   0.013   96.95736  0.7001967  66.20332
+    ##   0.014   96.20340  0.7048526  65.28622
+    ##   0.015   95.20133  0.7108728  65.01087
+    ##   0.016   98.41169  0.6911484  66.11388
+    ##   0.017   99.57242  0.6839224  66.94487
+    ##   0.018  100.50831  0.6777358  69.52024
+    ##   0.019  100.50831  0.6777358  69.52024
+    ##   0.020  100.50831  0.6777358  69.52024
     ## 
     ## RMSE was used to select the optimal model using the smallest value.
     ## The final value used for the model was cp = 0.01.
@@ -302,7 +311,7 @@ bikeTree
 plot(bikeTree)
 ```
 
-![](Report-Friday_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](analysis_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 Finally we use the model to predict `cnt` on the test data and calculate
 RMSE to check the fit of the model.
@@ -321,11 +330,20 @@ as the tree grows.
 
 We again use `caret` package and set the method as `gbm`. We use
 repeated cross validation (`repeatedcv`) and set the `tuneLength` as 10
-and let the model chooses the best model automatically.
+and let the model chooses the best model
+    automatically.
 
 ``` r
 modelLookup("gbm")
+```
 
+    ##   model         parameter                   label forReg forClass probModel
+    ## 1   gbm           n.trees   # Boosting Iterations   TRUE     TRUE      TRUE
+    ## 2   gbm interaction.depth          Max Tree Depth   TRUE     TRUE      TRUE
+    ## 3   gbm         shrinkage               Shrinkage   TRUE     TRUE      TRUE
+    ## 4   gbm    n.minobsinnode Min. Terminal Node Size   TRUE     TRUE      TRUE
+
+``` r
 grid <- expand.grid(n.trees = c(50, 100, 150), interaction.depth = 1:4, shrinkage = c(0.1, 0.01), n.minobsinnode = c(10, 15, 20))
 
 boostedBike <- train(cnt ~  season + yr + hr + weathersit + atemp + hum + windspeed, data = bikeTrain, method = "gbm", preProcess = c("center", "scale"), trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3), tuneGrid = grid, verbose = FALSE)
@@ -347,13 +365,22 @@ boostedBike$finalModel
 summary(boostedBike)
 ```
 
-![](Report-Friday_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](analysis_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+    ##                   var    rel.inf
+    ## hr                 hr 70.9411490
+    ## atemp           atemp 10.9651576
+    ## yr                 yr  6.9117079
+    ## season         season  6.8217024
+    ## hum               hum  2.3473304
+    ## weathersit weathersit  1.4540255
+    ## windspeed   windspeed  0.5589273
 
 ``` r
 plot(boostedBike)
 ```
 
-![](Report-Friday_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
+![](analysis_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
 
 Finally, we use the model to predict `cnt` on the test data and
 calculate RMSE to check the fit of the
@@ -377,8 +404,8 @@ knitr::kable(comparison)
 
 |                 |     RMSE |  Rsquared |      MAE |
 | --------------- | -------: | --------: | -------: |
-| Regression Tree | 83.22699 | 0.7773762 | 59.39726 |
-| Boosted Tree    | 50.64129 | 0.9185897 | 33.64938 |
+| Regression Tree | 86.24855 | 0.7840005 | 58.51697 |
+| Boosted Tree    | 58.68406 | 0.9027419 | 38.39205 |
 
 ### Final Model
 
@@ -406,7 +433,7 @@ model <- function(x, y){
 ```
 
 From the output, we can conclude that the boosted tree is the better
-model for Friday data, because it has better performance in terms of
+model for Monday data, because it has better performance in terms of
 RMSE, Rsquared, and MAE.
 
 ### Linear regression model
@@ -425,28 +452,34 @@ mlr
 
     ## Linear Regression 
     ## 
-    ## 1740 samples
+    ## 1735 samples
     ##    7 predictor
     ## 
     ## Pre-processing: centered (7), scaled (7) 
     ## Resampling: Cross-Validated (10 fold) 
-    ## Summary of sample sizes: 1565, 1565, 1567, 1566, 1567, 1566, ... 
+    ## Summary of sample sizes: 1562, 1562, 1560, 1560, 1563, 1562, ... 
     ## Resampling results:
     ## 
-    ##   RMSE    Rsquared   MAE     
-    ##   134.07  0.4006826  98.72952
+    ##   RMSE      Rsquared   MAE     
+    ##   141.6877  0.3609686  103.5574
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
 
 ``` r
 mlr$results
+```
+
+    ##   intercept     RMSE  Rsquared      MAE   RMSESD RsquaredSD    MAESD
+    ## 1      TRUE 141.6877 0.3609686 103.5574 9.510305 0.04759577 6.766531
+
+``` r
 pred <- predict(mlr, newdata = bikeTest)
 pred_mlr <- postResample(pred, obs = bikeTest$cnt)
 pred_mlr
 ```
 
     ##        RMSE    Rsquared         MAE 
-    ## 142.4512146   0.3487094 104.9472779
+    ## 147.9306265   0.3604575 108.2057686
 
 We can compare both linear regression model and nonlinear model, choose
 the one with comparatively smaller RMSE, smaller MAE and bigger
