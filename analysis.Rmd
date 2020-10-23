@@ -230,20 +230,3 @@ model <- function(x, y){
 
 From the output, we can conclude that the `r model(treeResult, boostedResult)` is the better model for `r params$weekday` data, because it has better performance in terms of RMSE, Rsquared, and MAE.  
 
-### Linear regression model
-
-I fit the multiple linear regression model for the predictors `season`, `yr`, `hr`, `weathersit`, `atemp`, `hum`, `windspeed`, and response is `cnt`.
-
-```{r}
-mlrFit <- lm(cnt~., data = bikeTrain)
-mlr <- train(cnt ~ ., data = bikeTrain, method = "lm",
-preProcess = c("center", "scale"),
-trControl = trainControl(method = "cv", number = 10))
-mlr
-mlr$results
-pred <- predict(mlr, newdata = bikeTest)
-pred_mlr <- postResample(pred, obs = bikeTest$cnt)
-pred_mlr
-```
-
-We can compare both linear regression model and nonlinear model, choose the one with comparatively smaller RMSE, smaller MAE and bigger Rsquared.

@@ -3,6 +3,19 @@ Tuesday
 Shih-Ni Prim
 2020-10-16
 
+  - [Introduction](#introduction)
+  - [Setting the Value for the
+    Parameter](#setting-the-value-for-the-parameter)
+  - [Data](#data)
+  - [Splitting Data](#splitting-data)
+  - [Summaries and Exploratory Data
+    Analysis](#summaries-and-exploratory-data-analysis)
+  - [Fitting models](#fitting-models)
+      - [Regression tree](#regression-tree)
+      - [Boosted Tree](#boosted-tree)
+      - [Comparison](#comparison)
+      - [Final Model](#final-model)
+
 ## Introduction
 
 Now we take a look at Tuesday’s analysis. This dataset contains
@@ -27,8 +40,7 @@ weekdayNum <- df$i[df$dayz == params$weekday]
 print(weekdayNum)
 ```
 
-    ## [1] 2
-    ## Levels: 0 1 2 3 4 5 6
+    ## [1] "2"
 
 ## Data
 
@@ -40,7 +52,7 @@ time in the day–should be a meaningful predictor for the number of bike
 rentals, we use the dataset with the `hr` variable
 
 ``` r
-bikes <- read_csv("Bike-Sharing-Dataset/hour.csv")
+bikes <- read_csv("../Bike-Sharing-Dataset/hour.csv")
 ```
 
     ## Parsed with column specification:
@@ -94,40 +106,32 @@ quick look at the data. We can look at summaries of numerical variables.
 summary(bikeTrain)
 ```
 
-    ##      dteday              weekday     instant          season     
-    ##  Min.   :2011-01-04   Min.   :2   Min.   :   70   Min.   :1.000  
-    ##  1st Qu.:2011-07-05   1st Qu.:2   1st Qu.: 4351   1st Qu.:2.000  
-    ##  Median :2011-12-27   Median :2   Median : 8540   Median :3.000  
-    ##  Mean   :2011-12-29   Mean   :2   Mean   : 8612   Mean   :2.533  
-    ##  3rd Qu.:2012-06-26   3rd Qu.:2   3rd Qu.:12907   3rd Qu.:3.000  
-    ##  Max.   :2012-12-25   Max.   :2   Max.   :17235   Max.   :4.000  
-    ##        yr              mnth              hr          holiday        
-    ##  Min.   :0.0000   Min.   : 1.000   Min.   : 0.0   Min.   :0.000000  
-    ##  1st Qu.:0.0000   1st Qu.: 4.000   1st Qu.: 6.0   1st Qu.:0.000000  
-    ##  Median :0.0000   Median : 7.000   Median :12.0   Median :0.000000  
-    ##  Mean   :0.4956   Mean   : 6.513   Mean   :11.6   Mean   :0.008154  
-    ##  3rd Qu.:1.0000   3rd Qu.: 9.000   3rd Qu.:18.0   3rd Qu.:0.000000  
-    ##  Max.   :1.0000   Max.   :12.000   Max.   :23.0   Max.   :1.000000  
-    ##    workingday       weathersit         temp            atemp       
-    ##  Min.   :0.0000   Min.   :1.000   Min.   :0.1000   Min.   :0.0758  
-    ##  1st Qu.:1.0000   1st Qu.:1.000   1st Qu.:0.3600   1st Qu.:0.3485  
-    ##  Median :1.0000   Median :1.000   Median :0.5400   Median :0.5152  
-    ##  Mean   :0.9918   Mean   :1.483   Mean   :0.5115   Mean   :0.4898  
-    ##  3rd Qu.:1.0000   3rd Qu.:2.000   3rd Qu.:0.6600   3rd Qu.:0.6212  
-    ##  Max.   :1.0000   Max.   :3.000   Max.   :0.9400   Max.   :0.8485  
-    ##       hum           windspeed           cnt       
-    ##  Min.   :0.1600   Min.   :0.0000   Min.   :  1.0  
-    ##  1st Qu.:0.4900   1st Qu.:0.1045   1st Qu.: 35.0  
-    ##  Median :0.6600   Median :0.1940   Median :144.0  
-    ##  Mean   :0.6417   Mean   :0.1933   Mean   :192.7  
-    ##  3rd Qu.:0.8100   3rd Qu.:0.2836   3rd Qu.:275.0  
-    ##  Max.   :1.0000   Max.   :0.7761   Max.   :970.0
+    ##      dteday              weekday     instant          season            yr        
+    ##  Min.   :2011-01-04   Min.   :2   Min.   :   70   Min.   :1.000   Min.   :0.0000  
+    ##  1st Qu.:2011-07-05   1st Qu.:2   1st Qu.: 4351   1st Qu.:2.000   1st Qu.:0.0000  
+    ##  Median :2011-12-27   Median :2   Median : 8540   Median :3.000   Median :0.0000  
+    ##  Mean   :2011-12-29   Mean   :2   Mean   : 8612   Mean   :2.533   Mean   :0.4956  
+    ##  3rd Qu.:2012-06-26   3rd Qu.:2   3rd Qu.:12907   3rd Qu.:3.000   3rd Qu.:1.0000  
+    ##  Max.   :2012-12-25   Max.   :2   Max.   :17235   Max.   :4.000   Max.   :1.0000  
+    ##       mnth              hr          holiday           workingday       weathersit   
+    ##  Min.   : 1.000   Min.   : 0.0   Min.   :0.000000   Min.   :0.0000   Min.   :1.000  
+    ##  1st Qu.: 4.000   1st Qu.: 6.0   1st Qu.:0.000000   1st Qu.:1.0000   1st Qu.:1.000  
+    ##  Median : 7.000   Median :12.0   Median :0.000000   Median :1.0000   Median :1.000  
+    ##  Mean   : 6.513   Mean   :11.6   Mean   :0.008154   Mean   :0.9918   Mean   :1.483  
+    ##  3rd Qu.: 9.000   3rd Qu.:18.0   3rd Qu.:0.000000   3rd Qu.:1.0000   3rd Qu.:2.000  
+    ##  Max.   :12.000   Max.   :23.0   Max.   :1.000000   Max.   :1.0000   Max.   :3.000  
+    ##       temp            atemp             hum           windspeed           cnt       
+    ##  Min.   :0.1000   Min.   :0.0758   Min.   :0.1600   Min.   :0.0000   Min.   :  1.0  
+    ##  1st Qu.:0.3600   1st Qu.:0.3485   1st Qu.:0.4900   1st Qu.:0.1045   1st Qu.: 35.0  
+    ##  Median :0.5400   Median :0.5152   Median :0.6600   Median :0.1940   Median :144.0  
+    ##  Mean   :0.5115   Mean   :0.4898   Mean   :0.6417   Mean   :0.1933   Mean   :192.7  
+    ##  3rd Qu.:0.6600   3rd Qu.:0.6212   3rd Qu.:0.8100   3rd Qu.:0.2836   3rd Qu.:275.0  
+    ##  Max.   :0.9400   Max.   :0.8485   Max.   :1.0000   Max.   :0.7761   Max.   :970.0
 
 Below we look at three plots. The first plot shows the histogram of bike
 rentals (`cnt`) on Tuesday. The second plot shows that `cnt` does vary
 in different hours. The third plot shows that `cnt` varies between the
-two years. So we know we should keep `hr` and `yr` as
-    predictors.
+two years. So we know we should keep `hr` and `yr` as predictors.
 
 ``` r
 ggplot(bikeTrain, mapping = aes(x = cnt)) + geom_histogram()
@@ -197,8 +201,7 @@ var(bikeTrain$workingday)
 
 Also, `instant` and `dteday` are for record-keeping. Thus, we decide to
 keep the following variables as the predictors: `season`, `yr`, `hr`,
-`weathersit`, `atemp`, `hum`, and
-`windspeed`.
+`weathersit`, `atemp`, `hum`, and `windspeed`.
 
 ``` r
 bikeTrain <- select(bikeTrain, season, yr, hr, weathersit, atemp, hum, windspeed, cnt)
@@ -356,8 +359,7 @@ plot(boostedBike)
 ![](Report-Tuesday_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
 
 Finally, we use the model to predict `cnt` on the test data and
-calculate RMSE to check the fit of the
-model.
+calculate RMSE to check the fit of the model.
 
 ``` r
 predBoostedBike <- predict(boostedBike, newdata = select(bikeTest, -cnt))
@@ -376,7 +378,7 @@ knitr::kable(comparison)
 ```
 
 |                 |     RMSE |  Rsquared |      MAE |
-| --------------- | -------: | --------: | -------: |
+| :-------------- | -------: | --------: | -------: |
 | Regression Tree | 88.92288 | 0.7534495 | 62.07661 |
 | Boosted Tree    | 44.83874 | 0.9364741 | 28.05756 |
 
@@ -408,46 +410,3 @@ model <- function(x, y){
 From the output, we can conclude that the boosted tree is the better
 model for Tuesday data, because it has better performance in terms of
 RMSE, Rsquared, and MAE.
-
-### Linear regression model
-
-I fit the multiple linear regression model for the predictors `season`,
-`yr`, `hr`, `weathersit`, `atemp`, `hum`, `windspeed`, and response is
-`cnt`.
-
-``` r
-mlrFit <- lm(cnt~., data = bikeTrain)
-mlr <- train(cnt ~ ., data = bikeTrain, method = "lm",
-preProcess = c("center", "scale"),
-trControl = trainControl(method = "cv", number = 10))
-mlr
-```
-
-    ## Linear Regression 
-    ## 
-    ## 1717 samples
-    ##    7 predictor
-    ## 
-    ## Pre-processing: centered (7), scaled (7) 
-    ## Resampling: Cross-Validated (10 fold) 
-    ## Summary of sample sizes: 1545, 1545, 1546, 1545, 1545, 1547, ... 
-    ## Resampling results:
-    ## 
-    ##   RMSE  Rsquared   MAE     
-    ##   155   0.3494109  114.2355
-    ## 
-    ## Tuning parameter 'intercept' was held constant at a value of TRUE
-
-``` r
-mlr$results
-pred <- predict(mlr, newdata = bikeTest)
-pred_mlr <- postResample(pred, obs = bikeTest$cnt)
-pred_mlr
-```
-
-    ##        RMSE    Rsquared         MAE 
-    ## 145.9350172   0.3294863 107.8596857
-
-We can compare both linear regression model and nonlinear model, choose
-the one with comparatively smaller RMSE, smaller MAE and bigger
-Rsquared.
